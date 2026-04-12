@@ -1,5 +1,6 @@
 node_modules/
 .env
+.vercel/
 *.log
 highcourt.db
 highcourt.db-*

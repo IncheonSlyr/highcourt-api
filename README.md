@@ -32,65 +32,58 @@ The server starts on `http://localhost:3000` by default.
 
 ```bash
 PORT=3000
-DB_PATH=./data/highcourt.db
+DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DATABASE
+CRON_SECRET=change-me
 ```
 
-`DB_PATH` should point to a writable location. For cloud hosting, use a persistent disk path instead of a local Windows path.
+`DATABASE_URL` can come from Vercel Postgres or any standard PostgreSQL provider.
 
 ## Deploy Online
 
-### Render
+### Vercel
 
 This repo includes:
 
-- `Dockerfile`
-- `render.yaml`
+- `api/server.ts`
+- `vercel.json`
 
-To deploy on Render:
+For Vercel:
 
-1. Create a new Blueprint/Web Service from this GitHub repo.
-2. Keep the disk mount enabled at `/opt/render/project/data`.
-3. Deploy the service.
+1. Create a Vercel project from this repo.
+2. Add a Postgres database to the project or provide a `DATABASE_URL`.
+3. Set `CRON_SECRET`.
+4. Deploy.
 
-The app will use:
+The app uses:
 
 - `PORT=3000`
-- `DB_PATH=/opt/render/project/data/highcourt.db`
+- `DATABASE_URL`
+- `CRON_SECRET`
+
+`vercel.json` configures a cron to call:
+
+- `/api/cron/cause-list-sync`
+
+### Import Existing Local SQLite Data
+
+This repo includes a one-time import script that reads the old local SQLite database and copies it into Postgres.
+
+```bash
+npm run import:sqlite
+```
+
+Optional:
+
+```bash
+SQLITE_DB_PATH=D:\highcourt\highcourt.db npm run import:sqlite
+```
 
 ### Docker
 
 ```bash
 docker build -t highcourt-api .
-docker run -p 3000:3000 -e PORT=3000 -e DB_PATH=/app/data/highcourt.db highcourt-api
+docker run -p 3000:3000 -e PORT=3000 -e DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DATABASE highcourt-api
 ```
-
-### Fly.io
-
-This repo also includes:
-
-- `fly.toml`
-
-Recommended for this app when you want:
-
-- faster public access than a sleepy host
-- to keep your existing SQLite database
-- a persistent mounted volume
-
-Basic flow:
-
-```bash
-fly auth login
-fly launch --no-deploy
-fly volumes create highcourt_data --size 1 --region sin
-fly deploy
-```
-
-The app uses:
-
-- `PORT=3000`
-- `DB_PATH=/data/highcourt.db`
-
-To move your existing local SQLite file onto the Fly volume, copy your local `highcourt.db` into `/data/highcourt.db` on the running machine after the first deploy.
 
 ## Main endpoints
 

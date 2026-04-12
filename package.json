@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "import:sqlite": "tsx scripts/import-sqlite.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@vercel/functions": "^2.2.13",
     "@types/better-sqlite3": "^7.6.13",
     "axios": "^1.15.0",
     "axios-cookiejar-support": "^6.0.5",
@@ -21,6 +23,7 @@
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "http-cookie-agent": "^7.0.3",
+    "pg": "^8.16.3",
     "tough-cookie": "^6.0.1",
     "uuid": "^13.0.0",
     "zod": "^4.3.6"
@@ -28,6 +31,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
+    "@types/pg": "^8.15.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

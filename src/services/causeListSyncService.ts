@@ -42,7 +42,7 @@ export class CauseListSyncService {
           try {
             const document = await this.causeListService.fetchDocument(dateText, side, listType, "html");
             const parsed = this.causeListService.parseHtml(document.data as string);
-            causeListCacheDb.upsertSnapshot({
+            await causeListCacheDb.upsertSnapshot({
               sourceDate: dateText,
               side,
               listType,
@@ -71,7 +71,7 @@ export class CauseListSyncService {
     const message = success
       ? `Synced ${synced} of ${attempted} cause-list files for ${startDate} to ${this.endDate(startDate, days)}.`
       : `No cause-list files were synced for ${startDate} to ${this.endDate(startDate, days)}. ${notFound > 0 ? `${notFound} combinations were not available on the website.` : "The website did not return usable files."}`;
-    syncStateDb.set("cause_list_sync", success ? "ok" : "warning", message);
+    await syncStateDb.set("cause_list_sync", success ? "ok" : "warning", message);
     return {
       startDate,
       days,
@@ -84,13 +84,13 @@ export class CauseListSyncService {
     };
   }
 
-  getStatus() {
+  async getStatus() {
     return syncStateDb.get("cause_list_sync");
   }
 
-  searchCache(params: { query: string; startDate: string; days: number; sides?: CauseListSide[]; listTypes?: CauseListType[] }) {
+  async searchCache(params: { query: string; startDate: string; days: number; sides?: CauseListSide[]; listTypes?: CauseListType[] }) {
     const endDate = this.endDate(params.startDate, params.days);
-    const results = causeListCacheDb.search({
+    const results = await causeListCacheDb.search({
       query: params.query,
       startDate: params.startDate,
       endDate,
@@ -118,7 +118,7 @@ export class CauseListSyncService {
     const sides = params.sides ?? DEFAULT_SIDES;
     const listTypes = params.listTypes ?? DEFAULT_TYPES;
     const endDate = this.endDate(params.startDate, params.days);
-    const cachedCountBefore = causeListCacheDb.countSnapshots({
+    const cachedCountBefore = await causeListCacheDb.countSnapshots({
       startDate: params.startDate,
       endDate,
       sides,
@@ -137,7 +137,7 @@ export class CauseListSyncService {
     }
 
     const syncResult = await this.runSync({ ...params, sides, listTypes });
-    const cachedCountAfter = causeListCacheDb.countSnapshots({
+    const cachedCountAfter = await causeListCacheDb.countSnapshots({
       startDate: params.startDate,
       endDate,
       sides,

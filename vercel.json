@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "/api/server"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/cause-list-sync",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

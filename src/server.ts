@@ -2,7 +2,7 @@ import express from "express";
 import path from "node:path";
 import { z } from "zod";
 import { config } from "./config";
-import { causeListCacheDb, savedSearchDb } from "./db";
+import { causeListCacheDb, initDb, savedSearchDb } from "./db";
 import { CauseListService } from "./services/causeListService";
 import { CauseListSyncService } from "./services/causeListSyncService";
 import { CaseStatusService } from "./services/caseStatusService";
@@ -10,6 +10,11 @@ import { CaseStatusService } from "./services/caseStatusService";
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
+const dbReady = initDb();
+app.use(async (_req, _res, next) => {
+  await dbReady;
+  next();
+});
 
 const causeListService = new CauseListService();
 const causeListSyncService = new CauseListSyncService(causeListService);
@@ -119,7 +124,7 @@ app.get("/api/cause-lists/cache/search", async (req, res, next) => {
     const sides = parseCsvEnumList(req.query.sides, causeListSideSchema.options);
     const listTypes = parseCsvEnumList(req.query.listTypes, causeListTypeSchema.options);
     const syncInfo = await causeListSyncService.ensureSyncedForRange({ ...params, sides, listTypes });
-    const searchResult = causeListSyncService.searchCache({ ...params, sides, listTypes });
+    const searchResult = await causeListSyncService.searchCache({ ...params, sides, listTypes });
     res.json({
       ...searchResult,
       cacheInfo: syncInfo,
@@ -129,12 +134,12 @@ app.get("/api/cause-lists/cache/search", async (req, res, next) => {
   }
 });
 
-app.get("/api/cause-lists/cache/recent", (_req, res) => {
-  res.json({ items: causeListCacheDb.listRecent() });
+app.get("/api/cause-lists/cache/recent", async (_req, res) => {
+  res.json({ items: await causeListCacheDb.listRecent() });
 });
 
-app.get("/api/cause-lists/sync/status", (_req, res) => {
-  res.json({ status: causeListSyncService.getStatus() });
+app.get("/api/cause-lists/sync/status", async (_req, res) => {
+  res.json({ status: await causeListSyncService.getStatus() });
 });
 
 app.post("/api/cause-lists/sync/run", async (req, res, next) => {
@@ -272,14 +277,14 @@ const savedSearchSchema = z.object({
     .optional(),
 });
 
-app.get("/api/saved-searches", (_req, res) => {
-  res.json({ items: savedSearchDb.list() });
+app.get("/api/saved-searches", async (_req, res) => {
+  res.json({ items: await savedSearchDb.list() });
 });
 
-app.post("/api/saved-searches", (req, res, next) => {
+app.post("/api/saved-searches", async (req, res, next) => {
   try {
     const body = savedSearchSchema.parse(req.body);
-    const record = savedSearchDb.create({
+    const record = await savedSearchDb.create({
       label: body.label,
       searchType: body.searchType,
       queryText: body.queryText ?? null,
@@ -296,20 +301,20 @@ app.post("/api/saved-searches", (req, res, next) => {
     }
 
     if (body.initialRun) {
-      savedSearchDb.addRun(record.id, body.initialRun.sourceType, body.initialRun.resultJson);
+      await savedSearchDb.addRun(record.id, body.initialRun.sourceType, body.initialRun.resultJson);
     }
 
-    res.status(201).json(savedSearchDb.getWithLatestRun(record.id));
+    res.status(201).json(await savedSearchDb.getWithLatestRun(record.id));
   } catch (error) {
     next(error);
   }
 });
 
-app.patch("/api/saved-searches/:id", (req, res, next) => {
+app.patch("/api/saved-searches/:id", async (req, res, next) => {
   try {
     const id = z.coerce.number().int().parse(req.params.id);
     const patch = savedSearchSchema.partial().parse(req.body);
-    const record = savedSearchDb.update(id, patch);
+    const record = await savedSearchDb.update(id, patch);
     if (!record) {
       res.status(404).json({ error: "Saved search not found" });
       return;
@@ -320,10 +325,10 @@ app.patch("/api/saved-searches/:id", (req, res, next) => {
   }
 });
 
-app.delete("/api/saved-searches/:id", (req, res, next) => {
+app.delete("/api/saved-searches/:id", async (req, res, next) => {
   try {
     const id = z.coerce.number().int().parse(req.params.id);
-    const deleted = savedSearchDb.delete(id);
+    const deleted = await savedSearchDb.delete(id);
     if (!deleted) {
       res.status(404).json({ error: "Saved search not found" });
       return;
@@ -334,19 +339,19 @@ app.delete("/api/saved-searches/:id", (req, res, next) => {
   }
 });
 
-app.get("/api/saved-searches/:id/runs", (req, res, next) => {
+app.get("/api/saved-searches/:id/runs", async (req, res, next) => {
   try {
     const id = z.coerce.number().int().parse(req.params.id);
-    res.json({ runs: savedSearchDb.listRuns(id) });
+    res.json({ runs: await savedSearchDb.listRuns(id) });
   } catch (error) {
     next(error);
   }
 });
 
-app.get("/api/saved-searches/:id/latest-run", (req, res, next) => {
+app.get("/api/saved-searches/:id/latest-run", async (req, res, next) => {
   try {
     const id = z.coerce.number().int().parse(req.params.id);
-    res.json({ latestRun: savedSearchDb.getLatestRun(id) });
+    res.json({ latestRun: await savedSearchDb.getLatestRun(id) });
   } catch (error) {
     next(error);
   }
@@ -355,7 +360,7 @@ app.get("/api/saved-searches/:id/latest-run", (req, res, next) => {
 app.post("/api/saved-searches/:id/run", async (req, res, next) => {
   try {
     const id = z.coerce.number().int().parse(req.params.id);
-    const record = savedSearchDb.get(id);
+    const record = await savedSearchDb.get(id);
     if (!record) {
       res.status(404).json({ error: "Saved search not found" });
       return;
@@ -372,14 +377,14 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
       const savedListTypes = Array.isArray(record.filtersJson?.listTypes)
         ? (record.filtersJson.listTypes as Array<"D" | "M" | "S" | "S2" | "S3" | "S4" | "S5" | "LA">)
         : undefined;
-      const result = causeListSyncService.searchCache({
+      const result = await causeListSyncService.searchCache({
         query: record.queryText,
         startDate,
         days,
         sides: savedSides,
         listTypes: savedListTypes,
       });
-      savedSearchDb.addRun(id, "cause_list_upcoming", result);
+      await savedSearchDb.addRun(id, "cause_list_upcoming", result);
       res.json(result);
       return;
     }
@@ -404,7 +409,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         year: record.year,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      savedSearchDb.addRun(id, "case_status_party", result);
+      await savedSearchDb.addRun(id, "case_status_party", result);
       res.json(result);
       return;
     }
@@ -428,7 +433,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         advocateName: record.queryText,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      savedSearchDb.addRun(id, "case_status_advocate", result);
+      await savedSearchDb.addRun(id, "case_status_advocate", result);
       res.json(result);
       return;
     }
@@ -453,7 +458,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         caseNumber: record.caseNumber,
         year: record.year,
       });
-      savedSearchDb.addRun(id, "case_status_case_number", result);
+      await savedSearchDb.addRun(id, "case_status_case_number", result);
       res.json(result);
       return;
     }
@@ -464,21 +469,40 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
   }
 });
 
+app.get("/api/cron/cause-list-sync", async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (config.cronSecret && authHeader !== `Bearer ${config.cronSecret}`) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const result = await causeListSyncService.runSync();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   const message = error instanceof Error ? error.message : "Unexpected error";
   res.status(400).json({ error: message });
 });
 
-app.listen(config.port, () => {
-  console.log(`High Court API running on http://localhost:${config.port}`);
-});
-
-void causeListSyncService.runSync().catch((error) => {
-  console.error("Initial cause-list sync failed:", error);
-});
-
-setInterval(() => {
-  void causeListSyncService.runSync().catch((error) => {
-    console.error("Scheduled cause-list sync failed:", error);
+if (!config.isVercel) {
+  app.listen(config.port, () => {
+    console.log(`High Court API running on http://localhost:${config.port}`);
   });
-}, 10 * 60 * 1000);
+
+  void causeListSyncService.runSync().catch((error) => {
+    console.error("Initial cause-list sync failed:", error);
+  });
+
+  setInterval(() => {
+    void causeListSyncService.runSync().catch((error) => {
+      console.error("Scheduled cause-list sync failed:", error);
+    });
+  }, 10 * 60 * 1000);
+}
+
+export default app;
