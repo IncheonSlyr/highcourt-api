@@ -31,20 +31,7 @@ export type SavedSearchListItem = SavedSearchRecord & {
   latestRun: SearchRunRecord | null;
 };
 
-if (!config.databaseUrl) {
-  throw new Error("DATABASE_URL or POSTGRES_URL must be set.");
-}
-
-const pool = new Pool({
-  connectionString: config.databaseUrl,
-  ssl: config.databaseUrl.includes("localhost")
-    ? undefined
-    : {
-        rejectUnauthorized: false,
-      },
-});
-
-attachDatabasePool(pool);
+let pool: Pool | null = null;
 
 let initPromise: Promise<void> | null = null;
 
@@ -77,12 +64,30 @@ function mapRunRow(row: Record<string, unknown>): SearchRunRecord {
 }
 
 export function getDbPool() {
+  if (!pool) {
+    if (!config.databaseUrl) {
+      throw new Error("DATABASE_URL or POSTGRES_URL must be set.");
+    }
+
+    pool = new Pool({
+      connectionString: config.databaseUrl,
+      ssl: config.databaseUrl.includes("localhost")
+        ? undefined
+        : {
+            rejectUnauthorized: false,
+          },
+    });
+
+    attachDatabasePool(pool);
+  }
+
   return pool;
 }
 
 export async function initDb() {
   if (!initPromise) {
     initPromise = (async () => {
+      const pool = getDbPool();
       await pool.query(`
         CREATE TABLE IF NOT EXISTS saved_searches (
           id BIGSERIAL PRIMARY KEY,
@@ -141,6 +146,7 @@ export async function initDb() {
 
 export const savedSearchDb = {
   async list() {
+    const pool = getDbPool();
     const { rows } = await pool.query(
       `
       SELECT s.*,
@@ -174,6 +180,7 @@ export const savedSearchDb = {
   },
 
   async get(id: number) {
+    const pool = getDbPool();
     const { rows } = await pool.query("SELECT * FROM saved_searches WHERE id = $1", [id]);
     return rows[0] ? mapSavedSearchRow(rows[0]) : null;
   },
@@ -191,6 +198,7 @@ export const savedSearchDb = {
   },
 
   async create(input: Omit<SavedSearchRecord, "id" | "createdAt" | "updatedAt" | "lastRunAt">) {
+    const pool = getDbPool();
     const now = new Date().toISOString();
     const { rows } = await pool.query(
       `
@@ -220,6 +228,7 @@ export const savedSearchDb = {
   },
 
   async update(id: number, patch: Partial<Omit<SavedSearchRecord, "id" | "createdAt" | "updatedAt" | "lastRunAt">>) {
+    const pool = getDbPool();
     const current = await this.get(id);
     if (!current) {
       return null;
@@ -268,11 +277,13 @@ export const savedSearchDb = {
   },
 
   async delete(id: number) {
+    const pool = getDbPool();
     const result = await pool.query("DELETE FROM saved_searches WHERE id = $1", [id]);
     return (result.rowCount ?? 0) > 0;
   },
 
   async addRun(savedSearchId: number, sourceType: string, resultJson: unknown) {
+    const pool = getDbPool();
     const now = new Date().toISOString();
     await pool.query(
       `
@@ -288,6 +299,7 @@ export const savedSearchDb = {
   },
 
   async listRuns(savedSearchId: number) {
+    const pool = getDbPool();
     const { rows } = await pool.query(
       `
       SELECT id, source_type, result_json, created_at
@@ -301,6 +313,7 @@ export const savedSearchDb = {
   },
 
   async getLatestRun(savedSearchId: number) {
+    const pool = getDbPool();
     const { rows } = await pool.query(
       `
       SELECT id, source_type, result_json, created_at
@@ -325,6 +338,7 @@ export const causeListCacheDb = {
     subtitle: string | null;
     contentJson: unknown;
   }) {
+    const pool = getDbPool();
     const fetchedAt = new Date().toISOString();
     await pool.query(
       `
@@ -351,6 +365,7 @@ export const causeListCacheDb = {
     sides?: string[];
     listTypes?: string[];
   }) {
+    const pool = getDbPool();
     const normalizeSearchText = (value: string) =>
       value
         .toLowerCase()
@@ -413,6 +428,7 @@ export const causeListCacheDb = {
   },
 
   async listRecent(limit = 30) {
+    const pool = getDbPool();
     const { rows } = await pool.query(
       `
       SELECT source_date, side, list_type, source_url, title, subtitle, fetched_at
@@ -431,6 +447,7 @@ export const causeListCacheDb = {
     sides?: string[];
     listTypes?: string[];
   }) {
+    const pool = getDbPool();
     const { rows } = await pool.query(
       `
       SELECT source_date, side, list_type
@@ -454,6 +471,7 @@ export const causeListCacheDb = {
 
 export const syncStateDb = {
   async set(syncKey: string, status: string, message: string) {
+    const pool = getDbPool();
     const lastRunAt = new Date().toISOString();
     await pool.query(
       `
@@ -470,6 +488,7 @@ export const syncStateDb = {
   },
 
   async get(syncKey: string) {
+    const pool = getDbPool();
     const { rows } = await pool.query("SELECT * FROM sync_state WHERE sync_key = $1", [syncKey]);
     return rows[0] ?? null;
   },
