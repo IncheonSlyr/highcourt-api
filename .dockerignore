@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+data
+highcourt.db
+highcourt.db-shm
+highcourt.db-wal
+server.out.log
+server.err.log
+refactor_clone
+publish_repo

@@ -3,6 +3,7 @@ node_modules/
 *.log
 highcourt.db
 highcourt.db-*
+data/
 cause-lists-page.html
 sample-cause-list.html
 hcservices-main.html

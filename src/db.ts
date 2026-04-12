@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import Database from "better-sqlite3";
 import type { SavedSearchType } from "./types";
 
@@ -29,7 +31,11 @@ export type SavedSearchListItem = SavedSearchRecord & {
   latestRun: SearchRunRecord | null;
 };
 
-const db = new Database("D:\\highcourt\\highcourt.db");
+const defaultDbPath = path.join(process.cwd(), "data", "highcourt.db");
+const dbPath = process.env.DB_PATH?.trim() || defaultDbPath;
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+
+const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 db.pragma("busy_timeout = 5000");
 db.pragma("synchronous = NORMAL");

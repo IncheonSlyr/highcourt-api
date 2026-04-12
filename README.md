@@ -28,6 +28,42 @@ npm run dev
 
 The server starts on `http://localhost:3000` by default.
 
+## Environment
+
+```bash
+PORT=3000
+DB_PATH=./data/highcourt.db
+```
+
+`DB_PATH` should point to a writable location. For cloud hosting, use a persistent disk path instead of a local Windows path.
+
+## Deploy Online
+
+### Render
+
+This repo includes:
+
+- `Dockerfile`
+- `render.yaml`
+
+To deploy on Render:
+
+1. Create a new Blueprint/Web Service from this GitHub repo.
+2. Keep the disk mount enabled at `/opt/render/project/data`.
+3. Deploy the service.
+
+The app will use:
+
+- `PORT=3000`
+- `DB_PATH=/opt/render/project/data/highcourt.db`
+
+### Docker
+
+```bash
+docker build -t highcourt-api .
+docker run -p 3000:3000 -e PORT=3000 -e DB_PATH=/app/data/highcourt.db highcourt-api
+```
+
 ## Main endpoints
 
 - `GET /health`
