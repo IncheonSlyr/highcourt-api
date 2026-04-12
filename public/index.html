@@ -528,7 +528,8 @@
         <div class="tabs">
           <button class="tab active" data-tab="causeListPanel">Upcoming Cause Lists</button>
           <button class="tab" data-tab="caseStatusPanel">Case Status</button>
-          <button class="tab" data-tab="savePanel">Saved Searches</button>
+          <button class="tab" data-tab="savedSearchesPanel">Saved Searches</button>
+          <button class="tab" data-tab="savedDataPanel">Saved Data</button>
         </div>
       </section>
 
@@ -680,19 +681,16 @@
             <div class="status" id="caseStatusStatus"></div>
           </div>
 
-          <div id="savePanel" class="panel">
+          <div id="savedSearchesPanel" class="panel">
             <h2>Saved Searches</h2>
-            <p class="note">Save your common lawyer, party, or case lookups here and rerun them later.</p>
-            <div class="tabs">
-              <button class="tab active" data-saved-tab="savedParamsPanel">Saved Parameters</button>
-              <button class="tab" data-saved-tab="savedDataPanel">Saved Data</button>
-            </div>
-            <div id="savedParamsPanel" class="panel active">
-              <div id="savedSearches" class="saved-list"></div>
-            </div>
-            <div id="savedDataPanel" class="panel">
-              <div id="savedDataList" class="saved-list"></div>
-            </div>
+            <p class="note">Save your common lawyer, party, or case lookups here and rerun them later without filling the form again.</p>
+            <div id="savedSearches" class="saved-list"></div>
+          </div>
+
+          <div id="savedDataPanel" class="panel">
+            <h2>Saved Data</h2>
+            <p class="note">Open the latest saved snapshots directly here without rerunning the search first.</p>
+            <div id="savedDataList" class="saved-list"></div>
           </div>
         </div>
 
@@ -723,7 +721,6 @@
       const tabs = document.querySelectorAll(".tab[data-tab]");
       const panels = document.querySelectorAll(".panel");
       const modeTabs = document.querySelectorAll(".tab[data-mode]");
-      const savedTabs = document.querySelectorAll(".tab[data-saved-tab]");
 
       const causeQuery = document.getElementById("causeQuery");
       const causeLabel = document.getElementById("causeLabel");
@@ -1127,12 +1124,6 @@
         document.getElementById("caseNumberFields").style.display = mode === "caseNumber" ? "grid" : "none";
       }
 
-      function setSavedPanel(panelId) {
-        savedTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.savedTab === panelId));
-        document.getElementById("savedParamsPanel").classList.toggle("active", panelId === "savedParamsPanel");
-        document.getElementById("savedDataPanel").classList.toggle("active", panelId === "savedDataPanel");
-      }
-
       function getSelectedBench() {
         const courtCode = benchSelect.value || "";
         const selected = state.benches.find((item) => item.value === courtCode) || null;
@@ -1483,7 +1474,6 @@
 
       tabs.forEach((tab) => tab.addEventListener("click", () => setActivePanel(tab.dataset.tab)));
       modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
-      savedTabs.forEach((tab) => tab.addEventListener("click", () => setSavedPanel(tab.dataset.savedTab)));
       benchSelect.addEventListener("change", loadCaseTypes);
 
       document.getElementById("loadCaptchaBtn").addEventListener("click", async () => {
