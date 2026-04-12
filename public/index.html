@@ -1,0 +1,1483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>High Court Tracker</title>
+    <style>
+      :root {
+        --bg: #f4efe5;
+        --paper: #fffaf2;
+        --ink: #221d19;
+        --muted: #6e635a;
+        --line: #d9cfbf;
+        --accent: #8d2f23;
+        --accent-2: #1f4b6e;
+        --soft: #ece2d1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top right, rgba(31, 75, 110, 0.12), transparent 26%),
+          radial-gradient(circle at top left, rgba(141, 47, 35, 0.14), transparent 24%),
+          linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
+      }
+
+      .shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 18px 60px;
+      }
+
+      .hero {
+        padding: 28px;
+        background: linear-gradient(135deg, rgba(255,250,242,0.98), rgba(244,239,229,0.98));
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow: 0 18px 50px rgba(34, 29, 25, 0.08);
+      }
+
+      h1, h2, h3 {
+        margin: 0 0 10px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1;
+      }
+
+      .sub {
+        color: var(--muted);
+        max-width: 850px;
+        font-size: 1.04rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+        margin-top: 20px;
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 16px 0 18px;
+      }
+
+      .tab {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 10px 16px;
+        cursor: pointer;
+        width: auto;
+      }
+
+      .tab.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      label {
+        display: block;
+        margin: 10px 0 6px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      input, select, textarea, button {
+        width: 100%;
+        font: inherit;
+        border-radius: 14px;
+        border: 1px solid #ccbfae;
+        padding: 12px 14px;
+        background: white;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 82px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+      }
+
+      button {
+        cursor: pointer;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        margin-top: 14px;
+      }
+
+      button.alt {
+        background: var(--accent-2);
+      }
+
+      button.ghost {
+        background: #f5efe4;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .actions button {
+        width: auto;
+        margin-top: 0;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 12px;
+        color: var(--muted);
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #1f1b18;
+        color: #f8f1e8;
+        padding: 16px;
+        border-radius: 18px;
+        min-height: 280px;
+        overflow: auto;
+      }
+
+      .saved-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .saved-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      .saved-meta {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin-top: 4px;
+      }
+
+      .saved-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      .saved-actions button {
+        width: auto;
+        padding: 8px 12px;
+        margin-top: 0;
+      }
+
+      .captcha-box {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .captcha-preview {
+        width: 100%;
+        min-height: 58px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .note {
+        font-size: 0.93rem;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+
+      .check-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .check-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #fff;
+      }
+
+      .check-item input {
+        width: auto;
+        margin: 0;
+      }
+
+      .pill {
+        display: inline-block;
+        background: var(--soft);
+        color: var(--ink);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+      }
+
+      .results-view {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .summary-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+      }
+
+      .summary-card strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-top: 4px;
+      }
+
+      .result-block {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+      }
+
+      .result-block h3 {
+        margin-bottom: 6px;
+      }
+
+      .case-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .case-row {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        background: #fffdf9;
+      }
+
+      .case-row strong {
+        display: inline-block;
+        margin-bottom: 6px;
+      }
+
+      .kv {
+        color: var(--muted);
+        font-size: 0.93rem;
+        margin-top: 3px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .badge.pending {
+        background: #f6e2b9;
+        color: #6a4d00;
+      }
+
+      .badge.disposed {
+        background: #d7ead8;
+        color: #1b5b2a;
+      }
+
+      .data-table-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 980px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        text-align: left;
+      }
+
+      .data-table th {
+        background: #fbf3e5;
+        font-size: 0.84rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .table-main {
+        font-weight: 700;
+      }
+
+      .table-sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .html-result {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        background: #fff;
+        overflow: auto;
+      }
+
+      .html-result table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .html-result td, .html-result th {
+        border: 1px solid var(--line);
+        padding: 8px;
+        vertical-align: top;
+      }
+
+      details {
+        margin-top: 14px;
+      }
+
+      summary {
+        cursor: pointer;
+        color: var(--muted);
+      }
+
+      @media (max-width: 960px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .row, .row-3, .captcha-box {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <h1>High Court Tracker</h1>
+        <p class="sub">
+          Search Calcutta High Court upcoming cause lists, check case status by party or lawyer, and save your searches so you can rerun them from one place.
+        </p>
+        <div class="tabs">
+          <button class="tab active" data-tab="causeListPanel">Upcoming Cause Lists</button>
+          <button class="tab" data-tab="caseStatusPanel">Case Status</button>
+          <button class="tab" data-tab="savePanel">Saved Searches</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div id="causeListPanel" class="panel active">
+            <h2>Upcoming Cause Lists</h2>
+            <div class="actions">
+              <button class="ghost" id="syncCauseListsBtn">Sync Latest Cause Lists</button>
+            </div>
+            <div class="note" id="syncStatusNote">Checking sync status...</div>
+            <div class="row">
+              <div>
+                <label for="causeQuery">Lawyer, party, or case text</label>
+                <input id="causeQuery" placeholder="e.g. UDAYNARAYAN BETAL or MAT/1310/2024" />
+              </div>
+              <div>
+                <label for="causeLabel">Save as</label>
+                <input id="causeLabel" placeholder="e.g. Track UDAYNARAYAN matters" />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="causeStartDate">Start date</label>
+                <input id="causeStartDate" type="date" />
+              </div>
+              <div>
+                <label for="causeDays">Days ahead</label>
+                <input id="causeDays" type="number" min="1" max="14" value="7" />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="causeSideSelect">Cause List Side</label>
+                <select id="causeSideSelect">
+                  <option value="">All Sides</option>
+                  <option value="A">Appellate Side</option>
+                  <option value="O">Original Side</option>
+                  <option value="J">Jalpaiguri</option>
+                  <option value="P">Port Blair</option>
+                </select>
+              </div>
+              <div>
+                <label for="causeTypeSelectFilter">Cause List Type</label>
+                <select id="causeTypeSelectFilter">
+                  <option value="">All Types</option>
+                  <option value="D">Daily</option>
+                  <option value="M">Monthly</option>
+                  <option value="S">Supplementary 1</option>
+                  <option value="S2">Supplementary 2</option>
+                  <option value="S3">Supplementary 3</option>
+                  <option value="S4">Supplementary 4</option>
+                  <option value="S5">Supplementary 5</option>
+                  <option value="LA">Lok Adalat</option>
+                </select>
+              </div>
+            </div>
+            <label for="causeNotes">Notes</label>
+            <textarea id="causeNotes" placeholder="Optional notes for this saved search"></textarea>
+            <div class="actions">
+              <button id="causeSearchBtn">Search Upcoming Cases</button>
+              <button class="alt" id="causeSaveBtn">Save Search</button>
+            </div>
+            <div class="status" id="causeStatus"></div>
+          </div>
+
+          <div id="caseStatusPanel" class="panel">
+            <h2>Case Status</h2>
+            <div class="tabs">
+              <button class="tab active" data-mode="party">Party</button>
+              <button class="tab" data-mode="advocate">Advocate</button>
+              <button class="tab" data-mode="caseNumber">Case Number</button>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="benchSelect">Bench</label>
+                <select id="benchSelect">
+                  <option value="">Loading benches...</option>
+                </select>
+              </div>
+              <div>
+                <label for="statusFilter">Status filter</label>
+                <select id="statusFilter">
+                  <option value="Both">Both</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Disposed">Disposed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="ghost" id="loadCaptchaBtn">Load Captcha Session</button>
+              <button class="ghost" id="refreshCaptchaBtn">Refresh Captcha Image</button>
+            </div>
+
+            <div class="captcha-box">
+              <div class="captcha-preview" id="captchaPreview">Captcha not loaded</div>
+              <div>
+                <label for="captchaInput">Captcha</label>
+                <input id="captchaInput" placeholder="Enter captcha" />
+              </div>
+            </div>
+
+            <div class="row" id="partyFields">
+              <div>
+                <label for="partyName">Party name</label>
+                <input id="partyName" placeholder="e.g. UDAYNARAYAN BETAL" />
+              </div>
+              <div>
+                <label for="partyYear">Year</label>
+                <input id="partyYear" placeholder="e.g. 2024" />
+              </div>
+            </div>
+
+            <div class="row" id="advocateFields" style="display:none;">
+              <div>
+                <label for="advocateName">Advocate name</label>
+                <input id="advocateName" placeholder="e.g. UDAYNARAYAN BETAL" />
+              </div>
+              <div>
+                <label for="advocateLabel">Save as</label>
+                <input id="advocateLabel" placeholder="e.g. Track UDAYNARAYAN BETAL" />
+              </div>
+            </div>
+
+            <div class="row-3" id="caseNumberFields" style="display:none;">
+              <div>
+                <label for="caseTypeSelect">Case type</label>
+                <select id="caseTypeSelect"></select>
+              </div>
+              <div>
+                <label for="caseNumberInput">Case number</label>
+                <input id="caseNumberInput" placeholder="e.g. 1310" />
+              </div>
+              <div>
+                <label for="caseYearInput">Year</label>
+                <input id="caseYearInput" placeholder="e.g. 2024" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="caseStatusSearchBtn">Run Case Status Search</button>
+              <button class="alt" id="caseStatusSaveBtn">Save This Search</button>
+            </div>
+            <div class="note">
+              eCourts case-status searches require a captcha session each time. Saved searches keep the details, but rerunning them still needs a fresh captcha.
+            </div>
+            <div class="status" id="caseStatusStatus"></div>
+          </div>
+
+          <div id="savePanel" class="panel">
+            <h2>Saved Searches</h2>
+            <p class="note">Save your common lawyer, party, or case lookups here and rerun them later.</p>
+            <div class="tabs">
+              <button class="tab active" data-saved-tab="savedParamsPanel">Saved Parameters</button>
+              <button class="tab" data-saved-tab="savedDataPanel">Saved Data</button>
+            </div>
+            <div id="savedParamsPanel" class="panel active">
+              <div id="savedSearches" class="saved-list"></div>
+            </div>
+            <div id="savedDataPanel" class="panel">
+              <div id="savedDataList" class="saved-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Readable Results</h2>
+          <div class="pill" id="resultMode">No search run yet</div>
+          <div id="resultsView" class="results-view">
+            <div class="result-block">Use the forms on the left to search or save data.</div>
+          </div>
+          <details>
+            <summary>Raw JSON</summary>
+            <pre id="results">Use the forms on the left to search or save data.</pre>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const state = {
+        currentCaseMode: "party",
+        sessionId: null,
+        benches: [],
+        caseTypes: [],
+        lastSearchPayload: null,
+        lastSearchKind: null
+      };
+
+      const tabs = document.querySelectorAll(".tab[data-tab]");
+      const panels = document.querySelectorAll(".panel");
+      const modeTabs = document.querySelectorAll(".tab[data-mode]");
+      const savedTabs = document.querySelectorAll(".tab[data-saved-tab]");
+
+      const causeQuery = document.getElementById("causeQuery");
+      const causeLabel = document.getElementById("causeLabel");
+      const causeStartDate = document.getElementById("causeStartDate");
+      const causeDays = document.getElementById("causeDays");
+      const causeNotes = document.getElementById("causeNotes");
+      const causeStatus = document.getElementById("causeStatus");
+      const syncStatusNote = document.getElementById("syncStatusNote");
+      const causeSideSelect = document.getElementById("causeSideSelect");
+      const causeTypeSelectFilter = document.getElementById("causeTypeSelectFilter");
+
+      const benchSelect = document.getElementById("benchSelect");
+      const statusFilter = document.getElementById("statusFilter");
+      const captchaPreview = document.getElementById("captchaPreview");
+      const captchaInput = document.getElementById("captchaInput");
+      const partyName = document.getElementById("partyName");
+      const partyYear = document.getElementById("partyYear");
+      const advocateName = document.getElementById("advocateName");
+      const advocateLabel = document.getElementById("advocateLabel");
+      const caseTypeSelect = document.getElementById("caseTypeSelect");
+      const caseNumberInput = document.getElementById("caseNumberInput");
+      const caseYearInput = document.getElementById("caseYearInput");
+      const caseStatusStatus = document.getElementById("caseStatusStatus");
+      const resultsViewEl = document.getElementById("resultsView");
+      const resultsEl = document.getElementById("results");
+      const resultMode = document.getElementById("resultMode");
+      const savedSearchesEl = document.getElementById("savedSearches");
+      const savedDataListEl = document.getElementById("savedDataList");
+
+      causeStartDate.value = new Date().toISOString().slice(0, 10);
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function sideLabel(value) {
+        return {
+          A: "Appellate Side",
+          O: "Original Side",
+          J: "Jalpaiguri",
+          P: "Port Blair"
+        }[value] || value;
+      }
+
+      function listTypeLabel(value) {
+        return {
+          D: "Daily",
+          M: "Monthly",
+          S: "Supplementary 1",
+          S2: "Supplementary 2",
+          S3: "Supplementary 3",
+          S4: "Supplementary 4",
+          S5: "Supplementary 5",
+          LA: "Lok Adalat"
+        }[value] || value;
+      }
+
+      function normalizeCaseStatusText(value, fallback = "-") {
+        const text = String(value ?? "").replace(/\s+/g, " ").trim();
+        return text && text !== "NA" && text !== "N/A" && text !== "N" ? text : fallback;
+      }
+
+      function getCaseStatusRecords(data) {
+        if (Array.isArray(data)) {
+          return data;
+        }
+
+        if (typeof data?.con === "string") {
+          const trimmed = data.con.trim();
+          if (trimmed.startsWith("[")) {
+            try {
+              const parsed = JSON.parse(trimmed);
+              if (Array.isArray(parsed)) {
+                return parsed;
+              }
+            } catch {
+              return [];
+            }
+          }
+        }
+
+        if (Array.isArray(data?.records)) {
+          return data.records;
+        }
+
+        return [];
+      }
+
+      function getCaseStatusAdvocates(entry) {
+        return [entry.adv_name1, entry.adv_name2, entry.ladv_name1, entry.ladv_name2]
+          .map((item) => normalizeCaseStatusText(item, ""))
+          .filter(Boolean)
+          .join(", ") || "-";
+      }
+
+      function getCaseStatusParties(entry) {
+        return {
+          petitioner: normalizeCaseStatusText(entry.pet_name || entry.lpet_name),
+          respondent: normalizeCaseStatusText(entry.res_name || entry.lres_name)
+        };
+      }
+
+      function getCaseStatusDecision(entry) {
+        const decisionDate = normalizeCaseStatusText(entry.date_of_decision, "");
+        if (decisionDate) {
+          return {
+            status: "Disposed",
+            badgeClass: "disposed",
+            decisionText: decisionDate
+          };
+        }
+
+        return {
+          status: "Pending",
+          badgeClass: "pending",
+          decisionText: "Awaiting disposal"
+        };
+      }
+
+      function summarizeCaseStatusRecords(records) {
+        return records.reduce((summary, entry) => {
+          const decision = getCaseStatusDecision(entry);
+          if (decision.status === "Disposed") {
+            summary.disposed += 1;
+          } else {
+            summary.pending += 1;
+          }
+          return summary;
+        }, { pending: 0, disposed: 0 });
+      }
+
+      function caseStatusSortValue(entry) {
+        const year = Number(entry.case_year || 0);
+        const caseNo = Number(entry.case_no2 || 0);
+        return (year * 1000000) + caseNo;
+      }
+
+      function renderCaseStatusTable(records, emptyMessage) {
+        if (!records.length) {
+          return `<div class="result-block">${escapeHtml(emptyMessage)}</div>`;
+        }
+
+        const rows = records.map((entry, index) => {
+          const caseTitle = `${normalizeCaseStatusText(entry.type_name)} ${normalizeCaseStatusText(entry.case_no2, "-")}/${normalizeCaseStatusText(entry.case_year, "-")}`;
+          const parties = getCaseStatusParties(entry);
+          const advocates = getCaseStatusAdvocates(entry);
+          const decision = getCaseStatusDecision(entry);
+
+          return `
+            <div class="case-row">
+              <div class="kv">Result No: ${escapeHtml(index + 1)}</div>
+              <strong>${escapeHtml(caseTitle)}</strong>
+              <div>${escapeHtml(parties.petitioner)}</div>
+              <div class="kv">Respondent: ${escapeHtml(parties.respondent)}</div>
+              <div class="kv">Advocate: ${escapeHtml(advocates)}</div>
+              <div class="kv">Case Type: ${escapeHtml(normalizeCaseStatusText(entry.type_name))}</div>
+              <div class="kv">Full Case No: ${escapeHtml(normalizeCaseStatusText(entry.case_no))}</div>
+              <div class="kv">CINO: ${escapeHtml(normalizeCaseStatusText(entry.cino))}</div>
+              <div class="kv">Status: <span class="badge ${escapeHtml(decision.badgeClass)}">${escapeHtml(decision.status)}</span></div>
+              <div class="kv">Decision Date: ${escapeHtml(decision.decisionText)}</div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="case-list">${rows}</div>
+        `;
+      }
+
+      function getSelectedCauseFilters() {
+        const side = causeSideSelect.value;
+        const listType = causeTypeSelectFilter.value;
+        return {
+          sides: side ? [side] : [],
+          listTypes: listType ? [listType] : []
+        };
+      }
+
+      function renderCauseListResults(data) {
+        const allMatches = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+        const blocks = (data.results || []).map((item) => `
+          <div class="result-block">
+            <h3>${escapeHtml(item.date)} | ${escapeHtml(sideLabel(item.side))} | ${escapeHtml(listTypeLabel(item.listType))}</h3>
+            <div class="kv">${escapeHtml(item.matchCount)} matched case(s) | Last synced ${escapeHtml(new Date(item.fetchedAt).toLocaleString())}</div>
+            <div class="case-list">
+              ${(item.matches || []).slice(0, 20).map((entry) => `
+                <div class="case-row">
+                  <div class="kv">Serial No: ${escapeHtml(entry.serial || "-")}</div>
+                  <strong>${escapeHtml(entry.primaryCaseNumber || entry.caseNumbers?.[0] || "Case")}</strong>
+                  <div>${escapeHtml(entry.parties || "")}</div>
+                  <div class="kv">Advocate: ${escapeHtml(entry.advocates || "-")}</div>
+                  <div class="kv">Section: ${escapeHtml(entry.section || "-")}</div>
+                  <div class="kv">Court: ${escapeHtml(entry.courtNo || "-")}</div>
+                  <div class="kv">Bench: ${escapeHtml(entry.bench || "-")}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `).join("");
+
+        return `
+          <div class="summary-grid">
+            <div class="summary-card">Search<strong>${escapeHtml(data.query)}</strong></div>
+            <div class="summary-card">Lists With Matches<strong>${escapeHtml(data.totalListsWithMatches || 0)}</strong></div>
+            <div class="summary-card">Matched Cases<strong>${escapeHtml(allMatches)}</strong></div>
+            <div class="summary-card">Range<strong>${escapeHtml(data.startDate)} to ${escapeHtml(data.endDate || data.startDate)}</strong></div>
+          </div>
+          <div class="result-block">
+            <div class="kv">Sides: ${escapeHtml((data.sides || []).map(sideLabel).join(", ") || "All")}</div>
+            <div class="kv">Types: ${escapeHtml((data.listTypes || []).map(listTypeLabel).join(", ") || "All")}</div>
+            ${
+              data.cacheInfo?.autoSynced
+                ? `<div class="kv">Auto-sync: ${escapeHtml(data.cacheInfo.syncResult?.message || "Completed")}</div>`
+                : `<div class="kv">Auto-sync: not needed, cache already contained data for this range.</div>`
+            }
+          </div>
+          ${blocks || `<div class="result-block">No cached cause-list matches found for this search range.</div>`}
+        `;
+      }
+
+      function renderCaseStatusResults(data) {
+        const records = getCaseStatusRecords(data);
+        if (records.length) {
+          const summary = summarizeCaseStatusRecords(records);
+          const pendingRecords = records
+            .filter((entry) => getCaseStatusDecision(entry).status === "Pending")
+            .sort((a, b) => caseStatusSortValue(b) - caseStatusSortValue(a));
+          const disposedRecords = records
+            .filter((entry) => getCaseStatusDecision(entry).status === "Disposed")
+            .sort((a, b) => String(b.date_of_decision || "").localeCompare(String(a.date_of_decision || "")));
+          const caseTypes = [...new Set(records.map((entry) => normalizeCaseStatusText(entry.type_name)))].filter(Boolean);
+
+          return `
+            <div class="summary-grid">
+              <div class="summary-card">Total Matters<strong>${escapeHtml(records.length)}</strong></div>
+              <div class="summary-card">Pending Matters<strong>${escapeHtml(summary.pending)}</strong></div>
+              <div class="summary-card">Disposed Matters<strong>${escapeHtml(summary.disposed)}</strong></div>
+              <div class="summary-card">Case Types<strong>${escapeHtml(caseTypes.length)}</strong></div>
+            </div>
+            <div class="result-block">
+              <div class="kv">Readable case-status list generated from the live court response for ${escapeHtml(getCaseStatusAdvocates(records[0]))}.</div>
+              <div class="kv">Types found: ${escapeHtml(caseTypes.join(", "))}</div>
+            </div>
+            <div class="result-block">
+              <h3>Pending Matters</h3>
+              <div class="kv">These are the matters where no disposal date was returned by the court service.</div>
+            </div>
+            ${renderCaseStatusTable(pendingRecords, "No pending matters were returned in this result set.")}
+            <div class="result-block">
+              <h3>Disposed Matters</h3>
+              <div class="kv">These are the matters that already have a decision date.</div>
+            </div>
+            ${renderCaseStatusTable(disposedRecords, "No disposed matters were returned in this result set.")}
+          `;
+        }
+
+        if (data?.con === "Invalid Captcha") {
+          return `<div class="result-block">The captcha did not match this session. Load or refresh the captcha and try again.</div>`;
+        }
+
+        if (typeof data?.con === "string" && data.con.trim().startsWith("<")) {
+          return `
+            <div class="summary-grid">
+              <div class="summary-card">Total Records<strong>${escapeHtml(data.totRecords || 0)}</strong></div>
+            </div>
+            <div class="html-result">${data.con}</div>
+          `;
+        }
+
+        return `
+          <div class="summary-grid">
+            <div class="summary-card">Total Records<strong>${escapeHtml(data?.totRecords || 0)}</strong></div>
+            <div class="summary-card">Status<strong>${escapeHtml(data?.con || "Completed")}</strong></div>
+          </div>
+          <div class="result-block">This case-status response does not include a table view, so the raw JSON is kept below for reference.</div>
+        `;
+      }
+
+      function renderReadableResults(kind, payload) {
+        if (!payload) {
+          resultsViewEl.innerHTML = `<div class="result-block">No result loaded yet.</div>`;
+          return;
+        }
+
+        if (kind === "causeList") {
+          resultsViewEl.innerHTML = renderCauseListResults(payload);
+          return;
+        }
+
+        if (kind === "caseStatus") {
+          resultsViewEl.innerHTML = renderCaseStatusResults(payload);
+          return;
+        }
+
+        resultsViewEl.innerHTML = `<div class="result-block">Result loaded. See raw JSON below for details.</div>`;
+      }
+
+      function setOutput(label, payload, kind = null) {
+        resultMode.textContent = label;
+        resultsEl.textContent = JSON.stringify(payload, null, 2);
+        state.lastSearchPayload = payload;
+        state.lastSearchKind = kind;
+        renderReadableResults(kind, payload);
+      }
+
+      function summarizeLatestRun(latestRun) {
+        if (!latestRun) {
+          return "No saved result yet.";
+        }
+
+        const data = latestRun.resultJson;
+        if (latestRun.sourceType.startsWith("cause_list")) {
+          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+          return `${data.totalListsWithMatches || 0} list(s), ${matchedCases} matched case(s), saved ${new Date(latestRun.createdAt).toLocaleString()}`;
+        }
+
+        if (Array.isArray(data)) {
+          const summary = summarizeCaseStatusRecords(data);
+          return `${data.length} matter(s), ${summary.pending} pending, ${summary.disposed} disposed, saved ${new Date(latestRun.createdAt).toLocaleString()}`;
+        }
+
+        if (data?.con === "Invalid Captcha") {
+          return `Last run saved an invalid captcha response on ${new Date(latestRun.createdAt).toLocaleString()}`;
+        }
+
+        if (data?.totRecords != null) {
+          return `${data.totRecords} record(s), saved ${new Date(latestRun.createdAt).toLocaleString()}`;
+        }
+
+        return `Saved ${new Date(latestRun.createdAt).toLocaleString()}`;
+      }
+
+      function summarizeSavedData(latestRun) {
+        if (!latestRun) {
+          return "No saved data yet.";
+        }
+
+        const data = latestRun.resultJson;
+        if (latestRun.sourceType.startsWith("cause_list")) {
+          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+          return `
+            <div class="saved-meta">Cause-list snapshot</div>
+            <div class="saved-meta">${escapeHtml(data.query || "")}</div>
+            <div class="saved-meta">${escapeHtml(data.totalListsWithMatches || 0)} list(s), ${escapeHtml(matchedCases)} matched case(s)</div>
+            <div class="saved-meta">${escapeHtml(data.startDate || "-")} to ${escapeHtml(data.endDate || "-")}</div>
+            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+          `;
+        }
+
+        if (Array.isArray(data)) {
+          const summary = summarizeCaseStatusRecords(data);
+          return `
+            <div class="saved-meta">Case-status snapshot</div>
+            <div class="saved-meta">${escapeHtml(data.length)} matter(s)</div>
+            <div class="saved-meta">Pending: ${escapeHtml(summary.pending)} | Disposed: ${escapeHtml(summary.disposed)}</div>
+            <div class="saved-meta">Advocate: ${escapeHtml(getCaseStatusAdvocates(data[0]))}</div>
+            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+          `;
+        }
+
+        if (data?.con === "Invalid Captcha") {
+          return `
+            <div class="saved-meta">Case-status snapshot</div>
+            <div class="saved-meta">Invalid captcha response was saved.</div>
+            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+          `;
+        }
+
+        return `
+          <div class="saved-meta">Case-status snapshot</div>
+          <div class="saved-meta">${escapeHtml(data?.totRecords ?? 0)} record(s)</div>
+          <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+        `;
+      }
+
+      async function api(url, options = {}) {
+        const response = await fetch(url, options);
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
+        if (!response.ok) {
+          throw new Error(data?.error || "Request failed");
+        }
+        return data;
+      }
+
+      function setActivePanel(panelId) {
+        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === panelId));
+        panels.forEach((panel) => panel.classList.toggle("active", panel.id === panelId));
+      }
+
+      function setCaseMode(mode) {
+        state.currentCaseMode = mode;
+        modeTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.mode === mode));
+        document.getElementById("partyFields").style.display = mode === "party" ? "grid" : "none";
+        document.getElementById("advocateFields").style.display = mode === "advocate" ? "grid" : "none";
+        document.getElementById("caseNumberFields").style.display = mode === "caseNumber" ? "grid" : "none";
+      }
+
+      function setSavedPanel(panelId) {
+        savedTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.savedTab === panelId));
+        document.getElementById("savedParamsPanel").classList.toggle("active", panelId === "savedParamsPanel");
+        document.getElementById("savedDataPanel").classList.toggle("active", panelId === "savedDataPanel");
+      }
+
+      function getSelectedBench() {
+        const courtCode = benchSelect.value || "";
+        const selected = state.benches.find((item) => item.value === courtCode) || null;
+        return {
+          courtCode,
+          benchLabel: selected?.label || "Unknown Bench"
+        };
+      }
+
+      async function loadBenches() {
+        const data = await api("/api/case-status/benches");
+        state.benches = data.benches.filter((item) => item.value !== "0");
+        if (!state.benches.length) {
+          benchSelect.innerHTML = `<option value="">No benches available</option>`;
+          throw new Error("No benches were returned by the eCourts service.");
+        }
+
+        benchSelect.innerHTML = [
+          `<option value="">Select bench</option>`,
+          ...state.benches.map((item) => `<option value="${item.value}">${item.label}</option>`)
+        ].join("");
+        benchSelect.value = state.benches[0].value;
+        await loadCaseTypes();
+      }
+
+      async function loadCaseTypes() {
+        const { courtCode, benchLabel } = getSelectedBench();
+        if (!courtCode) return;
+        try {
+          const data = await api(`/api/case-status/case-types?courtCode=${encodeURIComponent(courtCode)}`);
+          state.caseTypes = data.caseTypes.filter((item) => item.value !== "0");
+          if (!state.caseTypes.length) {
+            caseTypeSelect.innerHTML = `<option value="">No case types found for ${benchLabel}</option>`;
+            return;
+          }
+          caseTypeSelect.innerHTML = state.caseTypes
+            .map((item) => `<option value="${item.value}">${item.label}</option>`)
+            .join("");
+          caseTypeSelect.value = state.caseTypes[0].value;
+        } catch (error) {
+          state.caseTypes = [];
+          caseTypeSelect.innerHTML = `<option value="">Case types unavailable</option>`;
+          caseStatusStatus.textContent = error.message;
+        }
+      }
+
+      async function loadCaptchaSession() {
+        caseStatusStatus.textContent = "Loading captcha session...";
+        const data = await api("/api/case-status/session", { method: "POST" });
+        state.sessionId = data.sessionId;
+        captchaPreview.innerHTML = `<img src="${data.captchaImageUrl}?t=${Date.now()}" alt="captcha" style="width:100%;height:auto;">`;
+        caseStatusStatus.textContent = "Captcha loaded. Enter it and run your search.";
+      }
+
+      function refreshCaptchaImage() {
+        if (!state.sessionId) {
+          caseStatusStatus.textContent = "Load a captcha session first.";
+          return;
+        }
+        captchaPreview.innerHTML = `<img src="/api/case-status/session/${state.sessionId}/captcha?t=${Date.now()}" alt="captcha" style="width:100%;height:auto;">`;
+        caseStatusStatus.textContent = "Captcha image refreshed for the current session.";
+      }
+
+      async function searchCauseLists() {
+        causeStatus.textContent = "Searching synced cause lists...";
+        const query = causeQuery.value.trim();
+        const startDate = causeStartDate.value;
+        const days = causeDays.value;
+        const filters = getSelectedCauseFilters();
+        const data = await api(
+          `/api/cause-lists/cache/search?query=${encodeURIComponent(query)}&startDate=${encodeURIComponent(startDate)}&days=${encodeURIComponent(days)}&sides=${encodeURIComponent(filters.sides.join(","))}&listTypes=${encodeURIComponent(filters.listTypes.join(","))}`
+        );
+        if (data.cacheInfo?.autoSynced) {
+          if (data.cacheInfo.syncResult?.status === "ok") {
+            causeStatus.textContent = `Auto-sync succeeded. Found ${data.totalListsWithMatches} synced cause-list file(s) with matches.`;
+          } else {
+            causeStatus.textContent = data.cacheInfo.syncResult?.message || "Auto-sync did not find usable files.";
+          }
+        } else {
+          causeStatus.textContent = `Found ${data.totalListsWithMatches} synced cause-list file(s) with matches.`;
+        }
+        setOutput("Synced Cause Lists", data, "causeList");
+        return data;
+      }
+
+      async function refreshSyncStatus() {
+        const data = await api("/api/cause-lists/sync/status");
+        const status = data.status;
+        syncStatusNote.textContent = status?.last_message
+          ? `${status.last_status === "ok" ? "Sync success." : "Sync warning."} ${status.last_message} Last run: ${new Date(status.last_run_at).toLocaleString()}`
+          : "No sync has run yet.";
+      }
+
+      async function runCauseListSync() {
+        syncStatusNote.textContent = "Syncing cause lists from the official website...";
+        const data = await api("/api/cause-lists/sync/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            startDate: causeStartDate.value,
+            days: Math.min(Number(causeDays.value || 7), 7),
+            ...getSelectedCauseFilters()
+          })
+        });
+        syncStatusNote.textContent = data.status === "ok"
+          ? `Sync success. ${data.message}`
+          : `Sync warning. ${data.message}${data.sampleErrors?.length ? ` Sample: ${data.sampleErrors[0]}` : ""}`;
+        await refreshSyncStatus();
+      }
+
+      async function saveCauseSearch() {
+        const currentResult =
+          state.lastSearchKind === "causeList" && state.lastSearchPayload && state.lastSearchPayload.query === causeQuery.value.trim()
+            ? state.lastSearchPayload
+            : await searchCauseLists();
+
+        const body = {
+          label: causeLabel.value.trim() || `Track ${causeQuery.value.trim()}`,
+          searchType: "cause_list_text",
+          queryText: causeQuery.value.trim(),
+          filtersJson: getSelectedCauseFilters(),
+          notes: causeNotes.value.trim() || null,
+          initialRun: {
+            sourceType: "cause_list_cache_search",
+            resultJson: currentResult
+          }
+        };
+        const data = await api("/api/saved-searches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        causeStatus.textContent = `Saved search #${data.id} with current matched cases snapshot.`;
+        await loadSavedSearches();
+      }
+
+      async function runCaseStatusSearch() {
+        if (!state.sessionId) {
+          throw new Error("Load a captcha session first.");
+        }
+        const { courtCode, benchLabel } = getSelectedBench();
+        if (!courtCode) {
+          throw new Error("Select a bench first.");
+        }
+        const captcha = captchaInput.value.trim();
+        const filter = statusFilter.value;
+        let data;
+
+        caseStatusStatus.textContent = `Running case-status search for ${benchLabel}...`;
+
+        if (state.currentCaseMode === "party") {
+          data = await api("/api/case-status/search/party-name", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: state.sessionId,
+              captcha,
+              courtCode,
+              partyName: partyName.value.trim(),
+              year: partyYear.value.trim(),
+              statusFilter: filter
+            })
+          });
+        } else if (state.currentCaseMode === "advocate") {
+          data = await api("/api/case-status/search/advocate-name", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: state.sessionId,
+              captcha,
+              courtCode,
+              advocateName: advocateName.value.trim(),
+              statusFilter: filter
+            })
+          });
+        } else {
+          data = await api("/api/case-status/search/case-number", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: state.sessionId,
+              captcha,
+              courtCode,
+              caseType: caseTypeSelect.value,
+              caseNumber: caseNumberInput.value.trim(),
+              year: caseYearInput.value.trim()
+            })
+          });
+        }
+
+        caseStatusStatus.textContent = "Search completed.";
+        setOutput("Case Status", data, "caseStatus");
+        return data;
+      }
+
+      async function saveCaseStatusSearch() {
+        const { courtCode, benchLabel } = getSelectedBench();
+        if (!courtCode) {
+          throw new Error("Select a bench first.");
+        }
+        let body;
+
+        if (state.currentCaseMode === "party") {
+          body = {
+            label: `Party: ${partyName.value.trim()} (${benchLabel})`,
+            searchType: "case_status_party",
+            queryText: partyName.value.trim(),
+            courtCode,
+            statusFilter: statusFilter.value,
+            year: partyYear.value.trim(),
+            notes: "Saved from dashboard"
+          };
+        } else if (state.currentCaseMode === "advocate") {
+          body = {
+            label: advocateLabel.value.trim() || `Advocate: ${advocateName.value.trim()} (${benchLabel})`,
+            searchType: "case_status_advocate",
+            queryText: advocateName.value.trim(),
+            courtCode,
+            statusFilter: statusFilter.value,
+            notes: "Saved from dashboard"
+          };
+        } else {
+          body = {
+            label: `Case: ${caseNumberInput.value.trim()}/${caseYearInput.value.trim()} (${benchLabel})`,
+            searchType: "case_status_case_number",
+            courtCode,
+            caseType: caseTypeSelect.value,
+            caseNumber: caseNumberInput.value.trim(),
+            year: caseYearInput.value.trim(),
+            notes: "Saved from dashboard"
+          };
+        }
+
+        const currentResult = state.lastSearchKind === "caseStatus" ? state.lastSearchPayload : await runCaseStatusSearch();
+        const data = await api("/api/saved-searches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...body,
+            initialRun: {
+              sourceType: body.searchType,
+              resultJson: currentResult
+            }
+          })
+        });
+        caseStatusStatus.textContent = `Saved search #${data.id} with the current result snapshot.`;
+        await loadSavedSearches();
+      }
+
+      async function rerunSavedSearch(id, type) {
+        if (type === "cause_list_text") {
+          const data = await api(`/api/saved-searches/${id}/run`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              startDate: causeStartDate.value,
+              days: Number(causeDays.value)
+            })
+          });
+          setOutput("Saved Search Rerun", data, "causeList");
+          return;
+        }
+
+        if (!state.sessionId) {
+          await loadCaptchaSession();
+        }
+
+        const data = await api(`/api/saved-searches/${id}/run`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: state.sessionId,
+            captcha: captchaInput.value.trim()
+          })
+        });
+        setOutput("Saved Search Rerun", data, "caseStatus");
+      }
+
+      async function viewLatestSavedRun(id) {
+        const data = await api(`/api/saved-searches/${id}/latest-run`);
+        if (!data.latestRun) {
+          setOutput("Saved Search", { message: "No saved result yet." });
+          return;
+        }
+
+        const kind = data.latestRun.sourceType.startsWith("cause_list") ? "causeList" : "caseStatus";
+        setOutput("Saved Snapshot", data.latestRun.resultJson, kind);
+      }
+
+      async function deleteSavedSearch(id) {
+        await api(`/api/saved-searches/${id}`, {
+          method: "DELETE"
+        });
+        await loadSavedSearches();
+      }
+
+      async function loadSavedSearches() {
+        const data = await api("/api/saved-searches");
+        const items = data.items || [];
+        if (!items.length) {
+          savedSearchesEl.innerHTML = "<div class='saved-item'>No saved searches yet.</div>";
+          savedDataListEl.innerHTML = "<div class='saved-item'>No saved data yet.</div>";
+          return;
+        }
+
+        savedSearchesEl.innerHTML = items.map((item) => `
+          <div class="saved-item">
+            <strong>${item.label}</strong>
+            <div class="saved-meta">${item.searchType}</div>
+            <div class="saved-meta">${item.queryText || ""} ${item.caseNumber ? `Case ${item.caseNumber}/${item.year}` : ""}</div>
+            ${item.filtersJson?.listTypes ? `<div class="saved-meta">Types: ${item.filtersJson.listTypes.map(listTypeLabel).join(", ")}</div>` : ""}
+            ${item.filtersJson?.sides ? `<div class="saved-meta">Sides: ${item.filtersJson.sides.map(sideLabel).join(", ")}</div>` : ""}
+            <div class="saved-meta">Updated: ${new Date(item.updatedAt).toLocaleString()}</div>
+            <div class="saved-meta">${summarizeLatestRun(item.latestRun)}</div>
+            <div class="saved-actions">
+              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Run</button>
+              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">View Latest</button>
+              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
+            </div>
+          </div>
+        `).join("");
+
+        const itemsWithData = items.filter((item) => item.latestRun);
+        savedDataListEl.innerHTML = itemsWithData.length
+          ? itemsWithData.map((item) => `
+            <div class="saved-item">
+              <strong>${item.label}</strong>
+              ${summarizeSavedData(item.latestRun)}
+              <div class="saved-actions">
+                <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">Open Snapshot</button>
+                <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Refresh Data</button>
+                <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
+              </div>
+            </div>
+          `).join("")
+          : "<div class='saved-item'>No saved data yet.</div>";
+      }
+
+      window.__rerunSavedSearch = rerunSavedSearch;
+      window.__viewLatestSavedRun = viewLatestSavedRun;
+      window.__deleteSavedSearch = async (id) => {
+        try {
+          await deleteSavedSearch(id);
+        } catch (error) {
+          caseStatusStatus.textContent = error.message;
+        }
+      };
+
+      tabs.forEach((tab) => tab.addEventListener("click", () => setActivePanel(tab.dataset.tab)));
+      modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
+      savedTabs.forEach((tab) => tab.addEventListener("click", () => setSavedPanel(tab.dataset.savedTab)));
+      benchSelect.addEventListener("change", loadCaseTypes);
+
+      document.getElementById("loadCaptchaBtn").addEventListener("click", async () => {
+        try {
+          await loadCaptchaSession();
+        } catch (error) {
+          caseStatusStatus.textContent = error.message;
+        }
+      });
+
+      document.getElementById("refreshCaptchaBtn").addEventListener("click", () => {
+        refreshCaptchaImage();
+      });
+
+      document.getElementById("causeSearchBtn").addEventListener("click", async () => {
+        try {
+          await searchCauseLists();
+        } catch (error) {
+          causeStatus.textContent = error.message;
+        }
+      });
+
+      document.getElementById("causeSaveBtn").addEventListener("click", async () => {
+        try {
+          await saveCauseSearch();
+        } catch (error) {
+          causeStatus.textContent = error.message;
+        }
+      });
+
+      document.getElementById("syncCauseListsBtn").addEventListener("click", async () => {
+        try {
+          await runCauseListSync();
+        } catch (error) {
+          syncStatusNote.textContent = error.message;
+        }
+      });
+
+      document.getElementById("caseStatusSearchBtn").addEventListener("click", async () => {
+        try {
+          await runCaseStatusSearch();
+        } catch (error) {
+          caseStatusStatus.textContent = error.message;
+        }
+      });
+
+      document.getElementById("caseStatusSaveBtn").addEventListener("click", async () => {
+        try {
+          await saveCaseStatusSearch();
+        } catch (error) {
+          caseStatusStatus.textContent = error.message;
+        }
+      });
+
+      (async function init() {
+        causeQuery.value = "UDAYNARAYAN";
+        causeLabel.value = "Track UDAYNARAYAN";
+        partyName.value = "UDAYNARAYAN";
+        advocateName.value = "UDAYNARAYAN BETAL";
+        advocateLabel.value = "Track UDAYNARAYAN BETAL";
+        partyYear.value = String(new Date().getFullYear());
+        setCaseMode("advocate");
+        try {
+          await loadBenches();
+        } catch (error) {
+          caseStatusStatus.textContent = error.message;
+        }
+        await loadSavedSearches();
+        await refreshSyncStatus();
+      })().catch((error) => {
+        resultMode.textContent = "Startup Error";
+        resultsEl.textContent = error.message;
+      });
+    </script>
+  </body>
+</html>
