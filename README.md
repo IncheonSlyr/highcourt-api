@@ -64,6 +64,34 @@ docker build -t highcourt-api .
 docker run -p 3000:3000 -e PORT=3000 -e DB_PATH=/app/data/highcourt.db highcourt-api
 ```
 
+### Fly.io
+
+This repo also includes:
+
+- `fly.toml`
+
+Recommended for this app when you want:
+
+- faster public access than a sleepy host
+- to keep your existing SQLite database
+- a persistent mounted volume
+
+Basic flow:
+
+```bash
+fly auth login
+fly launch --no-deploy
+fly volumes create highcourt_data --size 1 --region sin
+fly deploy
+```
+
+The app uses:
+
+- `PORT=3000`
+- `DB_PATH=/data/highcourt.db`
+
+To move your existing local SQLite file onto the Fly volume, copy your local `highcourt.db` into `/data/highcourt.db` on the running machine after the first deploy.
+
 ## Main endpoints
 
 - `GET /health`
