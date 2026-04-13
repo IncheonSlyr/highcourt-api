@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
+import { randomUUID } from "crypto";
 import { CookieJar } from "tough-cookie";
-import { v4 as uuidv4 } from "uuid";
 import { config } from "../config";
 import { createCookieHttpClient, http } from "../lib/http";
 import type { CaseStatusSearchRequest, SearchStatusFilter } from "../types";
@@ -79,7 +79,7 @@ export class CaseStatusService {
       throw new Error("Could not find captcha image on the eCourts page.");
     }
 
-    const id = uuidv4();
+    const id = randomUUID();
     const captchaImageUrl = new URL(captchaImagePath, config.ecourtsBaseUrl).toString();
     this.sessions.set(id, {
       id,

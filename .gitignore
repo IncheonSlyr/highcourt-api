@@ -9,3 +9,7 @@ cause-lists-page.html
 sample-cause-list.html
 hcservices-main.html
 dist/
+
+.vercel
+.env*.local
+.import-secret.tmp
