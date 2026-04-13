@@ -35,6 +35,26 @@ let pool: Pool | null = null;
 
 let initPromise: Promise<void> | null = null;
 
+function buildPostgresConnectionConfig() {
+  if (!config.databaseUrl) {
+    throw new Error("DATABASE_URL or POSTGRES_URL must be set.");
+  }
+
+  const connectionUrl = new URL(config.databaseUrl);
+  connectionUrl.searchParams.delete("sslmode");
+
+  const isLocalhost = connectionUrl.hostname === "localhost" || connectionUrl.hostname === "127.0.0.1";
+
+  return {
+    connectionString: connectionUrl.toString(),
+    ssl: isLocalhost
+      ? undefined
+      : {
+          rejectUnauthorized: false,
+        },
+  };
+}
+
 function mapSavedSearchRow(row: Record<string, unknown>): SavedSearchRecord {
   return {
     id: Number(row.id),
@@ -65,18 +85,7 @@ function mapRunRow(row: Record<string, unknown>): SearchRunRecord {
 
 export function getDbPool() {
   if (!pool) {
-    if (!config.databaseUrl) {
-      throw new Error("DATABASE_URL or POSTGRES_URL must be set.");
-    }
-
-    pool = new Pool({
-      connectionString: config.databaseUrl,
-      ssl: config.databaseUrl.includes("localhost")
-        ? undefined
-        : {
-            rejectUnauthorized: false,
-          },
-    });
+    pool = new Pool(buildPostgresConnectionConfig());
 
     attachDatabasePool(pool);
   }
