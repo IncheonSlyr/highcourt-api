@@ -9,11 +9,5 @@
       "source": "/api/:match*",
       "destination": "/api/server"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/cause-list-sync",
-      "schedule": "*/10 * * * *"
-    }
   ]
 }
