@@ -67,11 +67,72 @@
         margin-top: 20px;
       }
 
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .hero-stat {
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px 16px;
+      }
+
+      .hero-stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .hero-stat strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 1.1rem;
+      }
+
       .card {
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 22px;
         padding: 20px;
+      }
+
+      .activity-banner {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(31, 75, 110, 0.18);
+        background: rgba(31, 75, 110, 0.08);
+        color: var(--accent-2);
+        font-size: 0.95rem;
+      }
+
+      .activity-banner.active {
+        display: flex;
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 2px solid rgba(31, 75, 110, 0.2);
+        border-top-color: var(--accent-2);
+        animation: spin 0.8s linear infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       .tabs {
@@ -147,6 +208,32 @@
         color: #fff;
         font-weight: 700;
         margin-top: 14px;
+        transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(34, 29, 25, 0.08);
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.68;
+        transform: none;
+        box-shadow: none;
+      }
+
+      button.busy::after {
+        content: " ";
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-left: 8px;
+        border-radius: 999px;
+        border: 2px solid rgba(255, 255, 255, 0.38);
+        border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+        vertical-align: middle;
       }
 
       button.alt {
@@ -193,6 +280,28 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
+      }
+
+      .saved-sections {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .saved-group {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.66);
+        padding: 14px;
+      }
+
+      .saved-group h3 {
+        margin-bottom: 4px;
+      }
+
+      .saved-group .note {
+        margin-top: 0;
+        margin-bottom: 12px;
       }
 
       .saved-item {
@@ -277,6 +386,30 @@
         font-size: 0.88rem;
       }
 
+      .pill.accent {
+        background: rgba(141, 47, 35, 0.12);
+        color: var(--accent);
+      }
+
+      .pill.blue {
+        background: rgba(31, 75, 110, 0.12);
+        color: var(--accent-2);
+      }
+
+      .result-topbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .result-meta {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
       .results-view {
         display: flex;
         flex-direction: column;
@@ -313,6 +446,22 @@
 
       .result-block h3 {
         margin-bottom: 6px;
+      }
+
+      .empty-state {
+        padding: 22px;
+        border-radius: 18px;
+        border: 1px dashed var(--line);
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--muted);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
       }
 
       .case-list {
@@ -439,6 +588,10 @@
         .shell {
           padding-bottom: 32px;
         }
+
+        .hero-stats {
+          grid-template-columns: 1fr 1fr;
+        }
       }
 
       @media (max-width: 720px) {
@@ -469,6 +622,10 @@
 
         .summary-grid {
           grid-template-columns: 1fr 1fr;
+        }
+
+        .hero-stats {
+          grid-template-columns: 1fr;
         }
 
         .actions {
@@ -525,6 +682,28 @@
         <p class="sub">
           Search Calcutta High Court upcoming cause lists, check case status by party or lawyer, and save your searches so you can rerun them from one place.
         </p>
+        <div class="hero-stats" id="heroStats">
+          <div class="hero-stat">
+            <span>Default Search</span>
+            <strong>UDAYNARAYAN</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Saved Searches</span>
+            <strong id="savedSearchCount">0</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Saved Snapshots</span>
+            <strong id="savedSnapshotCount">0</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Activity</span>
+            <strong id="activitySummary">Ready</strong>
+          </div>
+        </div>
+        <div class="activity-banner" id="activityBanner">
+          <span class="spinner"></span>
+          <span id="activityText">Working...</span>
+        </div>
         <div class="tabs">
           <button class="tab active" data-tab="causeListPanel">Upcoming Cause Lists</button>
           <button class="tab" data-tab="caseStatusPanel">Case Status</button>
@@ -684,21 +863,46 @@
           <div id="savedSearchesPanel" class="panel">
             <h2>Saved Searches</h2>
             <p class="note">Save your common lawyer, party, or case lookups here and rerun them later without filling the form again.</p>
-            <div id="savedSearches" class="saved-list"></div>
+            <div class="saved-sections">
+              <section class="saved-group">
+                <h3>Cause List Searches</h3>
+                <p class="note">Saved lawyer, party, and case-text searches for upcoming lists.</p>
+                <div id="savedSearchesCause" class="saved-list"></div>
+              </section>
+              <section class="saved-group">
+                <h3>Case Status Searches</h3>
+                <p class="note">Saved party, advocate, and case-number checks.</p>
+                <div id="savedSearchesCaseStatus" class="saved-list"></div>
+              </section>
+            </div>
           </div>
 
           <div id="savedDataPanel" class="panel">
             <h2>Saved Data</h2>
             <p class="note">Open the latest saved snapshots directly here without rerunning the search first.</p>
-            <div id="savedDataList" class="saved-list"></div>
+            <div class="saved-sections">
+              <section class="saved-group">
+                <h3>Cause List Results</h3>
+                <p class="note">Latest stored cause-list match snapshots.</p>
+                <div id="savedDataCause" class="saved-list"></div>
+              </section>
+              <section class="saved-group">
+                <h3>Case Status Results</h3>
+                <p class="note">Latest stored case-status snapshots.</p>
+                <div id="savedDataCaseStatus" class="saved-list"></div>
+              </section>
+            </div>
           </div>
         </div>
 
         <div class="card">
           <h2>Readable Results</h2>
-          <div class="pill" id="resultMode">No search run yet</div>
+          <div class="result-topbar">
+            <div class="pill" id="resultMode">No search run yet</div>
+            <div class="result-meta" id="resultMeta">Waiting for your first search.</div>
+          </div>
           <div id="resultsView" class="results-view">
-            <div class="result-block">Use the forms on the left to search or save data.</div>
+            <div class="empty-state">Use the forms on the left to search, save, or reopen a stored snapshot.</div>
           </div>
           <details>
             <summary>Raw JSON</summary>
@@ -747,10 +951,30 @@
       const resultsViewEl = document.getElementById("resultsView");
       const resultsEl = document.getElementById("results");
       const resultMode = document.getElementById("resultMode");
-      const savedSearchesEl = document.getElementById("savedSearches");
-      const savedDataListEl = document.getElementById("savedDataList");
+      const resultMetaEl = document.getElementById("resultMeta");
+      const savedSearchesCauseEl = document.getElementById("savedSearchesCause");
+      const savedSearchesCaseStatusEl = document.getElementById("savedSearchesCaseStatus");
+      const savedDataCauseEl = document.getElementById("savedDataCause");
+      const savedDataCaseStatusEl = document.getElementById("savedDataCaseStatus");
+      const activityBannerEl = document.getElementById("activityBanner");
+      const activityTextEl = document.getElementById("activityText");
+      const activitySummaryEl = document.getElementById("activitySummary");
+      const savedSearchCountEl = document.getElementById("savedSearchCount");
+      const savedSnapshotCountEl = document.getElementById("savedSnapshotCount");
+      const causeSearchBtn = document.getElementById("causeSearchBtn");
+      const causeSaveBtn = document.getElementById("causeSaveBtn");
+      const syncCauseListsBtn = document.getElementById("syncCauseListsBtn");
+      const loadCaptchaBtn = document.getElementById("loadCaptchaBtn");
+      const refreshCaptchaBtn = document.getElementById("refreshCaptchaBtn");
+      const caseStatusSearchBtn = document.getElementById("caseStatusSearchBtn");
+      const caseStatusSaveBtn = document.getElementById("caseStatusSaveBtn");
 
       causeStartDate.value = new Date().toISOString().slice(0, 10);
+
+      const buttonLabels = new Map();
+      [causeSearchBtn, causeSaveBtn, syncCauseListsBtn, loadCaptchaBtn, refreshCaptchaBtn, caseStatusSearchBtn, caseStatusSaveBtn]
+        .filter(Boolean)
+        .forEach((button) => buttonLabels.set(button, button.textContent));
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -759,6 +983,77 @@
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#39;");
+      }
+
+      function nowLabel() {
+        return new Date().toLocaleString();
+      }
+
+      function setActivity(message, isActive = false) {
+        activitySummaryEl.textContent = isActive ? "Working" : message;
+        activityTextEl.textContent = message;
+        activityBannerEl.classList.toggle("active", isActive);
+      }
+
+      function setButtonBusy(button, isBusy, busyLabel) {
+        if (!button) return;
+        if (isBusy) {
+          button.disabled = true;
+          button.classList.add("busy");
+          button.textContent = busyLabel;
+          return;
+        }
+
+        button.disabled = false;
+        button.classList.remove("busy");
+        button.textContent = buttonLabels.get(button) || button.textContent;
+      }
+
+      async function runAction({ button, busyLabel, startMessage, doneMessage, onError }, task) {
+        setButtonBusy(button, true, busyLabel);
+        setActivity(startMessage, true);
+        try {
+          const result = await task();
+          setActivity(doneMessage || "Ready", false);
+          activitySummaryEl.textContent = doneMessage || "Ready";
+          return result;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Something went wrong.";
+          setActivity(message, false);
+          activitySummaryEl.textContent = "Needs attention";
+          if (onError) {
+            onError(message);
+          }
+          throw error;
+        } finally {
+          setButtonBusy(button, false);
+        }
+      }
+
+      function emptyCollection(message) {
+        return `<div class="empty-state">${escapeHtml(message)}</div>`;
+      }
+
+      function updateResultMeta(kind, payload) {
+        const timestamp = nowLabel();
+        if (!kind || !payload) {
+          resultMetaEl.textContent = "Waiting for your first search.";
+          return;
+        }
+
+        if (kind === "causeList") {
+          const matchedCases = (payload.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+          resultMetaEl.textContent = `Updated ${timestamp} • ${payload.totalListsWithMatches || 0} list(s) • ${matchedCases} matched case(s)`;
+          return;
+        }
+
+        if (kind === "caseStatus") {
+          const records = getCaseStatusRecords(payload);
+          resultMetaEl.textContent = `Updated ${timestamp} • ${records.length || payload?.totRecords || 0} matter(s)`;
+          return;
+        }
+
+        resultMetaEl.textContent = `Updated ${timestamp}`;
       }
 
       function sideLabel(value) {
@@ -1016,7 +1311,7 @@
 
       function renderReadableResults(kind, payload) {
         if (!payload) {
-          resultsViewEl.innerHTML = `<div class="result-block">No result loaded yet.</div>`;
+          resultsViewEl.innerHTML = emptyCollection("No result loaded yet.");
           return;
         }
 
@@ -1030,14 +1325,16 @@
           return;
         }
 
-        resultsViewEl.innerHTML = `<div class="result-block">Result loaded. See raw JSON below for details.</div>`;
+        resultsViewEl.innerHTML = `<div class="empty-state">Result loaded. See raw JSON below for details.</div>`;
       }
 
       function setOutput(label, payload, kind = null) {
         resultMode.textContent = label;
+        resultMode.className = `pill${kind === "causeList" ? " accent" : kind === "caseStatus" ? " blue" : ""}`;
         resultsEl.textContent = JSON.stringify(payload, null, 2);
         state.lastSearchPayload = payload;
         state.lastSearchKind = kind;
+        updateResultMeta(kind, payload);
         renderReadableResults(kind, payload);
       }
 
@@ -1108,6 +1405,53 @@
           <div class="saved-meta">Case-status snapshot</div>
           <div class="saved-meta">${escapeHtml(data?.totRecords ?? 0)} record(s)</div>
           <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+        `;
+      }
+
+      function isCauseSearch(item) {
+        return item.searchType === "cause_list_text";
+      }
+
+      function isCauseSnapshot(item) {
+        return item.latestRun?.sourceType?.startsWith("cause_list");
+      }
+
+      function renderSavedSearchCard(item) {
+        return `
+          <div class="saved-item">
+            <div class="section-title">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span class="pill ${isCauseSearch(item) ? "accent" : "blue"}">${escapeHtml(isCauseSearch(item) ? "Cause List" : "Case Status")}</span>
+            </div>
+            <div class="saved-meta">${escapeHtml(item.queryText || "")} ${item.caseNumber ? `Case ${item.caseNumber}/${item.year}` : ""}</div>
+            ${item.filtersJson?.listTypes ? `<div class="saved-meta">Types: ${item.filtersJson.listTypes.map(listTypeLabel).join(", ")}</div>` : ""}
+            ${item.filtersJson?.sides ? `<div class="saved-meta">Sides: ${item.filtersJson.sides.map(sideLabel).join(", ")}</div>` : ""}
+            ${item.courtCode ? `<div class="saved-meta">Bench Code: ${escapeHtml(item.courtCode)}</div>` : ""}
+            <div class="saved-meta">Updated: ${new Date(item.updatedAt).toLocaleString()}</div>
+            <div class="saved-meta">${summarizeLatestRun(item.latestRun)}</div>
+            <div class="saved-actions">
+              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Run</button>
+              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">View Latest</button>
+              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderSavedDataCard(item) {
+        return `
+          <div class="saved-item">
+            <div class="section-title">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span class="pill ${isCauseSnapshot(item) ? "accent" : "blue"}">${escapeHtml(isCauseSnapshot(item) ? "Cause List Result" : "Case Status Result")}</span>
+            </div>
+            ${summarizeSavedData(item.latestRun)}
+            <div class="saved-actions">
+              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">Open Snapshot</button>
+              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Refresh Data</button>
+              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
+            </div>
+          </div>
         `;
       }
 
@@ -1433,112 +1777,177 @@
       async function loadSavedSearches() {
         const data = await api("/api/saved-searches");
         const items = data.items || [];
-        if (!items.length) {
-          savedSearchesEl.innerHTML = "<div class='saved-item'>No saved searches yet.</div>";
-          savedDataListEl.innerHTML = "<div class='saved-item'>No saved data yet.</div>";
-          return;
-        }
-
-        savedSearchesEl.innerHTML = items.map((item) => `
-          <div class="saved-item">
-            <strong>${item.label}</strong>
-            <div class="saved-meta">${item.searchType}</div>
-            <div class="saved-meta">${item.queryText || ""} ${item.caseNumber ? `Case ${item.caseNumber}/${item.year}` : ""}</div>
-            ${item.filtersJson?.listTypes ? `<div class="saved-meta">Types: ${item.filtersJson.listTypes.map(listTypeLabel).join(", ")}</div>` : ""}
-            ${item.filtersJson?.sides ? `<div class="saved-meta">Sides: ${item.filtersJson.sides.map(sideLabel).join(", ")}</div>` : ""}
-            <div class="saved-meta">Updated: ${new Date(item.updatedAt).toLocaleString()}</div>
-            <div class="saved-meta">${summarizeLatestRun(item.latestRun)}</div>
-            <div class="saved-actions">
-              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Run</button>
-              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">View Latest</button>
-              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
-            </div>
-          </div>
-        `).join("");
-
+        const causeSearches = items.filter(isCauseSearch);
+        const caseStatusSearches = items.filter((item) => !isCauseSearch(item));
         const itemsWithData = items.filter((item) => item.latestRun);
-        savedDataListEl.innerHTML = itemsWithData.length
-          ? itemsWithData.map((item) => `
-            <div class="saved-item">
-              <strong>${item.label}</strong>
-              ${summarizeSavedData(item.latestRun)}
-              <div class="saved-actions">
-                <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">Open Snapshot</button>
-                <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Refresh Data</button>
-                <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
-              </div>
-            </div>
-          `).join("")
-          : "<div class='saved-item'>No saved data yet.</div>";
+        const causeSnapshots = itemsWithData.filter(isCauseSnapshot);
+        const caseStatusSnapshots = itemsWithData.filter((item) => !isCauseSnapshot(item));
+
+        savedSearchCountEl.textContent = String(items.length);
+        savedSnapshotCountEl.textContent = String(itemsWithData.length);
+
+        savedSearchesCauseEl.innerHTML = causeSearches.length
+          ? causeSearches.map(renderSavedSearchCard).join("")
+          : emptyCollection("No cause-list searches saved yet.");
+
+        savedSearchesCaseStatusEl.innerHTML = caseStatusSearches.length
+          ? caseStatusSearches.map(renderSavedSearchCard).join("")
+          : emptyCollection("No case-status searches saved yet.");
+
+        savedDataCauseEl.innerHTML = causeSnapshots.length
+          ? causeSnapshots.map(renderSavedDataCard).join("")
+          : emptyCollection("No cause-list snapshots saved yet.");
+
+        savedDataCaseStatusEl.innerHTML = caseStatusSnapshots.length
+          ? caseStatusSnapshots.map(renderSavedDataCard).join("")
+          : emptyCollection("No case-status snapshots saved yet.");
       }
 
-      window.__rerunSavedSearch = rerunSavedSearch;
-      window.__viewLatestSavedRun = viewLatestSavedRun;
+      window.__rerunSavedSearch = async (id, type) => {
+        try {
+          await runAction({
+            startMessage: "Refreshing saved search results...",
+            doneMessage: "Saved search refreshed.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+              causeStatus.textContent = message;
+            }
+          }, () => rerunSavedSearch(id, type));
+        } catch {}
+      };
+
+      window.__viewLatestSavedRun = async (id) => {
+        try {
+          await runAction({
+            startMessage: "Opening saved snapshot...",
+            doneMessage: "Snapshot opened.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+              causeStatus.textContent = message;
+            }
+          }, () => viewLatestSavedRun(id));
+        } catch {}
+      };
+
       window.__deleteSavedSearch = async (id) => {
         try {
-          await deleteSavedSearch(id);
-        } catch (error) {
-          caseStatusStatus.textContent = error.message;
-        }
+          await runAction({
+            startMessage: "Deleting saved item...",
+            doneMessage: "Saved item deleted.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+              causeStatus.textContent = message;
+            }
+          }, () => deleteSavedSearch(id));
+        } catch {}
       };
 
       tabs.forEach((tab) => tab.addEventListener("click", () => setActivePanel(tab.dataset.tab)));
       modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
       benchSelect.addEventListener("change", loadCaseTypes);
 
-      document.getElementById("loadCaptchaBtn").addEventListener("click", async () => {
+      loadCaptchaBtn.addEventListener("click", async () => {
         try {
-          await loadCaptchaSession();
-        } catch (error) {
-          caseStatusStatus.textContent = error.message;
-        }
+          await runAction({
+            button: loadCaptchaBtn,
+            busyLabel: "Loading Session",
+            startMessage: "Loading a fresh captcha session from the court service...",
+            doneMessage: "Captcha session loaded.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+            }
+          }, loadCaptchaSession);
+        } catch {}
       });
 
-      document.getElementById("refreshCaptchaBtn").addEventListener("click", () => {
-        refreshCaptchaImage();
+      refreshCaptchaBtn.addEventListener("click", async () => {
+        try {
+          await runAction({
+            button: refreshCaptchaBtn,
+            busyLabel: "Refreshing",
+            startMessage: "Refreshing the captcha preview...",
+            doneMessage: "Captcha refreshed.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+            }
+          }, async () => {
+            refreshCaptchaImage();
+          });
+        } catch {}
       });
 
-      document.getElementById("causeSearchBtn").addEventListener("click", async () => {
+      causeSearchBtn.addEventListener("click", async () => {
         try {
-          await searchCauseLists();
-        } catch (error) {
-          causeStatus.textContent = error.message;
-        }
+          await runAction({
+            button: causeSearchBtn,
+            busyLabel: "Searching",
+            startMessage: "Searching synced cause lists...",
+            doneMessage: "Cause-list search completed.",
+            onError: (message) => {
+              causeStatus.textContent = message;
+            }
+          }, searchCauseLists);
+        } catch {}
       });
 
-      document.getElementById("causeSaveBtn").addEventListener("click", async () => {
+      causeSaveBtn.addEventListener("click", async () => {
         try {
-          await saveCauseSearch();
-        } catch (error) {
-          causeStatus.textContent = error.message;
-        }
+          await runAction({
+            button: causeSaveBtn,
+            busyLabel: "Saving",
+            startMessage: "Saving this cause-list search and snapshot...",
+            doneMessage: "Cause-list search saved.",
+            onError: (message) => {
+              causeStatus.textContent = message;
+            }
+          }, saveCauseSearch);
+        } catch {}
       });
 
-      document.getElementById("syncCauseListsBtn").addEventListener("click", async () => {
+      syncCauseListsBtn.addEventListener("click", async () => {
         try {
-          await runCauseListSync();
-        } catch (error) {
-          syncStatusNote.textContent = error.message;
-        }
+          await runAction({
+            button: syncCauseListsBtn,
+            busyLabel: "Syncing",
+            startMessage: "Syncing cause lists from the official website...",
+            doneMessage: "Cause-list sync finished.",
+            onError: (message) => {
+              syncStatusNote.textContent = message;
+            }
+          }, runCauseListSync);
+        } catch {}
       });
 
-      document.getElementById("caseStatusSearchBtn").addEventListener("click", async () => {
+      caseStatusSearchBtn.addEventListener("click", async () => {
         try {
-          await runCaseStatusSearch();
-        } catch (error) {
-          caseStatusStatus.textContent = error.message;
-        }
+          await runAction({
+            button: caseStatusSearchBtn,
+            busyLabel: "Searching",
+            startMessage: "Running the live case-status search...",
+            doneMessage: "Case-status search completed.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+            }
+          }, runCaseStatusSearch);
+        } catch {}
       });
 
-      document.getElementById("caseStatusSaveBtn").addEventListener("click", async () => {
+      caseStatusSaveBtn.addEventListener("click", async () => {
         try {
-          await saveCaseStatusSearch();
-        } catch (error) {
-          caseStatusStatus.textContent = error.message;
-        }
+          await runAction({
+            button: caseStatusSaveBtn,
+            busyLabel: "Saving",
+            startMessage: "Saving this case-status search and snapshot...",
+            doneMessage: "Case-status search saved.",
+            onError: (message) => {
+              caseStatusStatus.textContent = message;
+            }
+          }, saveCaseStatusSearch);
+        } catch {}
       });
 
       (async function init() {
+        setActivity("Loading dashboard...", true);
         causeQuery.value = "UDAYNARAYAN";
         causeLabel.value = "Track UDAYNARAYAN";
         partyName.value = "UDAYNARAYAN";
@@ -1553,9 +1962,14 @@
         }
         await loadSavedSearches();
         await refreshSyncStatus();
+        setActivity("Ready", false);
+        activitySummaryEl.textContent = "Ready";
       })().catch((error) => {
         resultMode.textContent = "Startup Error";
         resultsEl.textContent = error.message;
+        resultMetaEl.textContent = "Startup failed.";
+        setActivity(error.message, false);
+        activitySummaryEl.textContent = "Startup error";
       });
     </script>
   </body>
