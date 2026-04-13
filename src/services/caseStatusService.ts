@@ -12,6 +12,27 @@ type SessionRecord = {
   createdAt: string;
 };
 
+function normalizeSearchResponse(payload: unknown) {
+  if (typeof payload !== "string") {
+    return payload;
+  }
+
+  const trimmed = payload.replace(/^\uFEFF/, "").trim();
+  if (!trimmed) {
+    return payload;
+  }
+
+  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return payload;
+    }
+  }
+
+  return payload;
+}
+
 function parseHashOptions(payload: string) {
   return payload
     .replace(/^\uFEFF/, "")
@@ -140,7 +161,7 @@ export class CaseStatusService {
       },
     );
 
-    return response.data;
+    return normalizeSearchResponse(response.data);
   }
 
   async searchByPartyName(input: {
@@ -175,7 +196,7 @@ export class CaseStatusService {
       },
     );
 
-    return response.data;
+    return normalizeSearchResponse(response.data);
   }
 
   async searchByAdvocateName(input: {
@@ -209,6 +230,6 @@ export class CaseStatusService {
       },
     );
 
-    return response.data;
+    return normalizeSearchResponse(response.data);
   }
 }

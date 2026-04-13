@@ -789,6 +789,18 @@
       }
 
       function getCaseStatusRecords(data) {
+        if (typeof data === "string") {
+          const trimmed = data.trim();
+          if (trimmed.startsWith("[")) {
+            try {
+              const parsed = JSON.parse(trimmed);
+              if (Array.isArray(parsed)) {
+                return parsed;
+              }
+            } catch {}
+          }
+        }
+
         if (Array.isArray(data)) {
           return data;
         }
@@ -801,9 +813,7 @@
               if (Array.isArray(parsed)) {
                 return parsed;
               }
-            } catch {
-              return [];
-            }
+            } catch {}
           }
         }
 
