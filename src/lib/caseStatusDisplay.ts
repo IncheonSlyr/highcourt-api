@@ -80,6 +80,13 @@ export function buildCaseStatusDisplayResponse(payload: unknown): CaseStatusDisp
     };
   }
 
+  if (payload && typeof payload === "object" && "raw" in (payload as Record<string, unknown>)) {
+    const rawRecords = extractCaseStatusRecords((payload as { raw?: unknown }).raw);
+    if (rawRecords.length) {
+      return buildCaseStatusDisplayResponse(rawRecords);
+    }
+  }
+
   if (payload && typeof payload === "object" && typeof (payload as { con?: unknown }).con === "string") {
     const content = (payload as { con: string }).con.trim();
     if (content === "Invalid Captcha") {

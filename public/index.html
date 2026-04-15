@@ -67,56 +67,11 @@
         margin-top: 20px;
       }
 
-      .hero-stats {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 18px;
-      }
-
-      .hero-stat {
-        background: rgba(255, 255, 255, 0.72);
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 14px 16px;
-      }
-
-      .hero-stat span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-
-      .hero-stat strong {
-        display: block;
-        margin-top: 6px;
-        font-size: 1.1rem;
-      }
-
       .card {
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 22px;
         padding: 20px;
-      }
-
-      .activity-banner {
-        display: none;
-        align-items: center;
-        gap: 10px;
-        margin-top: 16px;
-        padding: 12px 14px;
-        border-radius: 16px;
-        border: 1px solid rgba(31, 75, 110, 0.18);
-        background: rgba(31, 75, 110, 0.08);
-        color: var(--accent-2);
-        font-size: 0.95rem;
-      }
-
-      .activity-banner.active {
-        display: flex;
       }
 
       .spinner {
@@ -596,9 +551,6 @@
           padding-bottom: 32px;
         }
 
-        .hero-stats {
-          grid-template-columns: 1fr 1fr;
-        }
       }
 
       @media (max-width: 720px) {
@@ -629,10 +581,6 @@
 
         .summary-grid {
           grid-template-columns: 1fr 1fr;
-        }
-
-        .hero-stats {
-          grid-template-columns: 1fr;
         }
 
         .actions {
@@ -689,28 +637,6 @@
         <p class="sub">
           Search Calcutta High Court upcoming cause lists, check case status by party or lawyer, and save your searches so you can rerun them from one place.
         </p>
-        <div class="hero-stats" id="heroStats">
-          <div class="hero-stat">
-            <span>Default Search</span>
-            <strong>UDAYNARAYAN</strong>
-          </div>
-          <div class="hero-stat">
-            <span>Saved Searches</span>
-            <strong id="savedSearchCount">0</strong>
-          </div>
-          <div class="hero-stat">
-            <span>Saved Snapshots</span>
-            <strong id="savedSnapshotCount">0</strong>
-          </div>
-          <div class="hero-stat">
-            <span>Activity</span>
-            <strong id="activitySummary">Ready</strong>
-          </div>
-        </div>
-        <div class="activity-banner" id="activityBanner">
-          <span class="spinner"></span>
-          <span id="activityText">Working...</span>
-        </div>
         <div class="tabs">
           <button class="tab active" data-tab="causeListPanel">Upcoming Cause Lists</button>
           <button class="tab" data-tab="caseStatusPanel">Case Status</button>
@@ -889,18 +815,20 @@
           <div id="savedDataPanel" class="panel">
             <h2>Saved Data</h2>
             <p class="note">Open the latest saved snapshots directly here without rerunning the search first.</p>
-            <div class="saved-sections">
-              <section class="saved-group">
-                <h3>Cause List Results</h3>
-                <p class="note">Latest stored cause-list match snapshots.</p>
-                <div id="savedDataCause" class="saved-list"></div>
-              </section>
-              <section class="saved-group">
-                <h3>Case Status Results</h3>
-                <p class="note">Latest stored case-status snapshots.</p>
-                <div id="savedDataCaseStatus" class="saved-list"></div>
-              </section>
+            <div class="saved-filter-row">
+              <div>
+                <label for="savedDataTypeSelect">Saved Data Type</label>
+                <select id="savedDataTypeSelect">
+                  <option value="cause">Cause List</option>
+                  <option value="caseStatus">Case Status</option>
+                </select>
+              </div>
             </div>
+            <section class="saved-group">
+              <h3 id="savedDataGroupTitle">Cause List Results</h3>
+              <p class="note" id="savedDataGroupNote">Latest stored cause-list match snapshots.</p>
+              <div id="savedDataList" class="saved-list"></div>
+            </section>
           </div>
         </div>
 
@@ -962,11 +890,13 @@
       const resultMode = document.getElementById("resultMode");
       const resultMetaEl = document.getElementById("resultMeta");
       const savedSearchTypeSelect = document.getElementById("savedSearchTypeSelect");
+      const savedDataTypeSelect = document.getElementById("savedDataTypeSelect");
       const savedSearchGroupTitleEl = document.getElementById("savedSearchGroupTitle");
       const savedSearchGroupNoteEl = document.getElementById("savedSearchGroupNote");
+      const savedDataGroupTitleEl = document.getElementById("savedDataGroupTitle");
+      const savedDataGroupNoteEl = document.getElementById("savedDataGroupNote");
       const savedSearchesListEl = document.getElementById("savedSearchesList");
-      const savedDataCauseEl = document.getElementById("savedDataCause");
-      const savedDataCaseStatusEl = document.getElementById("savedDataCaseStatus");
+      const savedDataListEl = document.getElementById("savedDataList");
       const activityBannerEl = document.getElementById("activityBanner");
       const activityTextEl = document.getElementById("activityText");
       const activitySummaryEl = document.getElementById("activitySummary");
@@ -1001,9 +931,15 @@
       }
 
       function setActivity(message, isActive = false) {
-        activitySummaryEl.textContent = isActive ? "Working" : message;
-        activityTextEl.textContent = message;
-        activityBannerEl.classList.toggle("active", isActive);
+        if (activitySummaryEl) {
+          activitySummaryEl.textContent = isActive ? "Working" : message;
+        }
+        if (activityTextEl) {
+          activityTextEl.textContent = message;
+        }
+        if (activityBannerEl) {
+          activityBannerEl.classList.toggle("active", isActive);
+        }
       }
 
       function setButtonBusy(button, isBusy, busyLabel) {
@@ -1026,12 +962,10 @@
         try {
           const result = await task();
           setActivity(doneMessage || "Ready", false);
-          activitySummaryEl.textContent = doneMessage || "Ready";
           return result;
         } catch (error) {
           const message = error instanceof Error ? error.message : "Something went wrong.";
           setActivity(message, false);
-          activitySummaryEl.textContent = "Needs attention";
           if (onError) {
             onError(message);
           }
@@ -1221,6 +1155,23 @@
       function getCaseStatusDisplayModel(data) {
         if (data && typeof data === "object" && data.view && Array.isArray(data.records)) {
           return data;
+        }
+
+        if (data && typeof data === "object" && data.view === "message" && data.raw) {
+          const retried = getCaseStatusDisplayModel(data.raw);
+          if (retried.view !== "message") {
+            return retried;
+          }
+        }
+
+        if (data && typeof data === "object" && "con" in data) {
+          const wrapped = getCaseStatusDisplayModel(data.con);
+          if (wrapped.view !== "message") {
+            return wrapped;
+          }
+          if (data.con === "Invalid Captcha") {
+            return wrapped;
+          }
         }
 
         const records = getCaseStatusRecords(data);
@@ -1479,6 +1430,29 @@
         resultsViewEl.innerHTML = `<div class="empty-state">Result loaded. See raw JSON below for details.</div>`;
       }
 
+      function emptyResultMessageForPanel(panelId) {
+        if (panelId === "caseStatusPanel") {
+          return "Run a case-status search to see readable pending and disposed matters here.";
+        }
+        if (panelId === "savedSearchesPanel") {
+          return "Open or rerun a saved search to load its latest result here.";
+        }
+        if (panelId === "savedDataPanel") {
+          return "Open a saved snapshot to load the stored result here.";
+        }
+        return "Use the forms on the left to search, save, or reopen a stored snapshot.";
+      }
+
+      function clearOutput(panelId = null) {
+        state.lastSearchPayload = null;
+        state.lastSearchKind = null;
+        resultMode.textContent = "No search run yet";
+        resultMode.className = "pill";
+        resultMetaEl.textContent = "Waiting for your first search.";
+        resultsViewEl.innerHTML = emptyCollection(emptyResultMessageForPanel(panelId));
+        resultsEl.textContent = "Use the forms on the left to search or save data.";
+      }
+
       function setOutput(label, payload, kind = null) {
         resultMode.textContent = label;
         resultMode.className = `pill${kind === "causeList" ? " accent" : kind === "caseStatus" ? " blue" : ""}`;
@@ -1598,6 +1572,17 @@
 
         savedSearchGroupTitleEl.textContent = "Cause List Searches";
         savedSearchGroupNoteEl.textContent = "Saved lawyer, party, and case-text searches for upcoming lists.";
+      }
+
+      function updateSavedDataGroup(type) {
+        if (type === "caseStatus") {
+          savedDataGroupTitleEl.textContent = "Case Status Results";
+          savedDataGroupNoteEl.textContent = "Latest stored case-status snapshots.";
+          return;
+        }
+
+        savedDataGroupTitleEl.textContent = "Cause List Results";
+        savedDataGroupNoteEl.textContent = "Latest stored cause-list match snapshots.";
       }
 
       function renderSavedDataCard(item) {
@@ -1764,6 +1749,7 @@
       function setActivePanel(panelId) {
         tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === panelId));
         panels.forEach((panel) => panel.classList.toggle("active", panel.id === panelId));
+        clearOutput(panelId);
       }
 
       function setCaseMode(mode) {
@@ -2076,8 +2062,12 @@
         const causeSnapshots = itemsWithData.filter(isCauseSnapshot);
         const caseStatusSnapshots = itemsWithData.filter((item) => !isCauseSnapshot(item));
 
-        savedSearchCountEl.textContent = String(items.length);
-        savedSnapshotCountEl.textContent = String(itemsWithData.length);
+        if (savedSearchCountEl) {
+          savedSearchCountEl.textContent = String(items.length);
+        }
+        if (savedSnapshotCountEl) {
+          savedSnapshotCountEl.textContent = String(itemsWithData.length);
+        }
         const selectedType = savedSearchTypeSelect.value || "cause";
         updateSavedSearchGroup(selectedType);
         const selectedItems = selectedType === "caseStatus" ? caseStatusSearches : causeSearches;
@@ -2085,13 +2075,12 @@
           ? selectedItems.map(renderSavedSearchCard).join("")
           : emptyCollection(selectedType === "caseStatus" ? "No case-status searches saved yet." : "No cause-list searches saved yet.");
 
-        savedDataCauseEl.innerHTML = causeSnapshots.length
-          ? causeSnapshots.map(renderSavedDataCard).join("")
-          : emptyCollection("No cause-list snapshots saved yet.");
-
-        savedDataCaseStatusEl.innerHTML = caseStatusSnapshots.length
-          ? caseStatusSnapshots.map(renderSavedDataCard).join("")
-          : emptyCollection("No case-status snapshots saved yet.");
+        const selectedDataType = (savedDataTypeSelect?.value || "cause");
+        updateSavedDataGroup(selectedDataType);
+        const selectedSnapshots = selectedDataType === "caseStatus" ? caseStatusSnapshots : causeSnapshots;
+        savedDataListEl.innerHTML = selectedSnapshots.length
+          ? selectedSnapshots.map(renderSavedDataCard).join("")
+          : emptyCollection(selectedDataType === "caseStatus" ? "No case-status snapshots saved yet." : "No cause-list snapshots saved yet.");
       }
 
       window.__rerunSavedSearch = async (id, type) => {
@@ -2137,6 +2126,9 @@
       modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
       benchSelect.addEventListener("change", loadCaseTypes);
       savedSearchTypeSelect.addEventListener("change", () => {
+        void loadSavedSearches();
+      });
+      savedDataTypeSelect.addEventListener("change", () => {
         void loadSavedSearches();
       });
 
@@ -2254,16 +2246,15 @@
         } catch (error) {
           caseStatusStatus.textContent = error.message;
         }
+        clearOutput("causeListPanel");
         await loadSavedSearches();
         await refreshSyncStatus();
         setActivity("Ready", false);
-        activitySummaryEl.textContent = "Ready";
       })().catch((error) => {
         resultMode.textContent = "Startup Error";
         resultsEl.textContent = error.message;
         resultMetaEl.textContent = "Startup failed.";
         setActivity(error.message, false);
-        activitySummaryEl.textContent = "Startup error";
       });
     </script>
   </body>
