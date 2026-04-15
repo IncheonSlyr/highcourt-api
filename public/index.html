@@ -1083,17 +1083,74 @@
         return text && text !== "NA" && text !== "N/A" && text !== "N" ? text : fallback;
       }
 
+      function tryParseCaseStatusJson(value) {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return null;
+        }
+      }
+
+      function extractCaseStatusObjects(value) {
+        const records = [];
+        let depth = 0;
+        let start = -1;
+        let inString = false;
+        let escaped = false;
+
+        for (let index = 0; index < value.length; index += 1) {
+          const char = value[index];
+
+          if (inString) {
+            if (escaped) {
+              escaped = false;
+            } else if (char === "\\") {
+              escaped = true;
+            } else if (char === "\"") {
+              inString = false;
+            }
+            continue;
+          }
+
+          if (char === "\"") {
+            inString = true;
+            continue;
+          }
+
+          if (char === "{") {
+            if (depth === 0) {
+              start = index;
+            }
+            depth += 1;
+            continue;
+          }
+
+          if (char === "}") {
+            depth -= 1;
+            if (depth === 0 && start >= 0) {
+              const parsed = tryParseCaseStatusJson(value.slice(start, index + 1));
+              if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+                records.push(parsed);
+              }
+              start = -1;
+            }
+          }
+        }
+
+        return records;
+      }
+
       function getCaseStatusRecords(data) {
         if (typeof data === "string") {
           const trimmed = data.trim();
-          if (trimmed.startsWith("[")) {
-            try {
-              const parsed = JSON.parse(trimmed);
-              if (Array.isArray(parsed)) {
-                return parsed;
-              }
-            } catch {}
+          const parsed = tryParseCaseStatusJson(trimmed);
+          if (Array.isArray(parsed)) {
+            return parsed;
           }
+          if (parsed && typeof parsed === "object") {
+            return getCaseStatusRecords(parsed);
+          }
+          return extractCaseStatusObjects(trimmed);
         }
 
         if (Array.isArray(data)) {
@@ -1102,14 +1159,14 @@
 
         if (typeof data?.con === "string") {
           const trimmed = data.con.trim();
-          if (trimmed.startsWith("[")) {
-            try {
-              const parsed = JSON.parse(trimmed);
-              if (Array.isArray(parsed)) {
-                return parsed;
-              }
-            } catch {}
+          const parsed = tryParseCaseStatusJson(trimmed);
+          if (Array.isArray(parsed)) {
+            return parsed;
           }
+          if (parsed && typeof parsed === "object") {
+            return getCaseStatusRecords(parsed);
+          }
+          return extractCaseStatusObjects(trimmed);
         }
 
         if (Array.isArray(data?.records)) {

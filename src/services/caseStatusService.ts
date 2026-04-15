@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { randomUUID } from "crypto";
 import { CookieJar } from "tough-cookie";
 import { config } from "../config";
+import { normalizeCaseStatusPayload } from "../lib/caseStatusParser";
 import { createCookieHttpClient, http } from "../lib/http";
 import type { CaseStatusSearchRequest, SearchStatusFilter } from "../types";
 
@@ -11,27 +12,6 @@ type SessionRecord = {
   captchaImageUrl: string;
   createdAt: string;
 };
-
-function normalizeSearchResponse(payload: unknown) {
-  if (typeof payload !== "string") {
-    return payload;
-  }
-
-  const trimmed = payload.replace(/^\uFEFF/, "").trim();
-  if (!trimmed) {
-    return payload;
-  }
-
-  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-    try {
-      return JSON.parse(trimmed);
-    } catch {
-      return payload;
-    }
-  }
-
-  return payload;
-}
 
 function parseHashOptions(payload: string) {
   return payload
@@ -161,7 +141,7 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeSearchResponse(response.data);
+    return normalizeCaseStatusPayload(response.data);
   }
 
   async searchByPartyName(input: {
@@ -196,7 +176,7 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeSearchResponse(response.data);
+    return normalizeCaseStatusPayload(response.data);
   }
 
   async searchByAdvocateName(input: {
@@ -230,6 +210,6 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeSearchResponse(response.data);
+    return normalizeCaseStatusPayload(response.data);
   }
 }
