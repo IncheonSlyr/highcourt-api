@@ -30,11 +30,7 @@ The server starts on `http://localhost:3000` by default.
 
 ## Environment
 
-```bash
-PORT=3000
-DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DATABASE
-CRON_SECRET=change-me
-```
+
 
 `DATABASE_URL` can come from Vercel Postgres or any standard PostgreSQL provider.
 
