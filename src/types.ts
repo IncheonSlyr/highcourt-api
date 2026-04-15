@@ -25,6 +25,30 @@ export type CaseStatusSearchRequest = {
 
 export type SearchStatusFilter = "Pending" | "Disposed" | "Both";
 
+export type CaseStatusDisplayRecord = {
+  resultNumber: number;
+  caseTypeName: string;
+  caseNumber: string;
+  fullCaseNumber: string;
+  petitioner: string;
+  respondent: string;
+  advocate: string;
+  cino: string;
+  status: "Pending" | "Disposed";
+  decisionDate: string | null;
+};
+
+export type CaseStatusDisplayResponse = {
+  view: "records" | "html" | "message";
+  totalRecords: number;
+  pendingCount: number;
+  disposedCount: number;
+  records: CaseStatusDisplayRecord[];
+  html: string | null;
+  message: string | null;
+  raw: unknown;
+};
+
 export type SavedSearchType =
   | "cause_list_text"
   | "case_status_party"

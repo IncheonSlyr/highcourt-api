@@ -1207,6 +1207,89 @@
         };
       }
 
+      function getCaseStatusDisplayModel(data) {
+        if (data && typeof data === "object" && data.view && Array.isArray(data.records)) {
+          return data;
+        }
+
+        const records = getCaseStatusRecords(data);
+        if (records.length) {
+          const mapped = records.map((entry, index) => {
+            const decision = getCaseStatusDecision(entry);
+            const parties = getCaseStatusParties(entry);
+            return {
+              resultNumber: index + 1,
+              caseTypeName: normalizeCaseStatusText(entry.type_name),
+              caseNumber: `${normalizeCaseStatusText(entry.case_no2)}/${normalizeCaseStatusText(entry.case_year)}`,
+              fullCaseNumber: normalizeCaseStatusText(entry.case_no),
+              petitioner: parties.petitioner,
+              respondent: parties.respondent,
+              advocate: getCaseStatusAdvocates(entry),
+              cino: normalizeCaseStatusText(entry.cino),
+              status: decision.status,
+              decisionDate: decision.status === "Disposed" ? decision.decisionText : null
+            };
+          });
+
+          const summary = mapped.reduce((accumulator, record) => {
+            if (record.status === "Disposed") {
+              accumulator.disposedCount += 1;
+            } else {
+              accumulator.pendingCount += 1;
+            }
+            return accumulator;
+          }, { pendingCount: 0, disposedCount: 0 });
+
+          return {
+            view: "records",
+            totalRecords: mapped.length,
+            pendingCount: summary.pendingCount,
+            disposedCount: summary.disposedCount,
+            records: mapped,
+            html: null,
+            message: null,
+            raw: data
+          };
+        }
+
+        if (data?.con === "Invalid Captcha") {
+          return {
+            view: "message",
+            totalRecords: 0,
+            pendingCount: 0,
+            disposedCount: 0,
+            records: [],
+            html: null,
+            message: "The captcha did not match this session. Load a fresh captcha and try again.",
+            raw: data
+          };
+        }
+
+        if (typeof data?.con === "string" && data.con.trim().startsWith("<")) {
+          return {
+            view: "html",
+            totalRecords: Number(data.totRecords || 0),
+            pendingCount: 0,
+            disposedCount: 0,
+            records: [],
+            html: data.con,
+            message: null,
+            raw: data
+          };
+        }
+
+        return {
+          view: "message",
+          totalRecords: Number(data?.totRecords || 0),
+          pendingCount: 0,
+          disposedCount: 0,
+          records: [],
+          html: null,
+          message: data?.message || "No structured case-status records were found in this response.",
+          raw: data
+        };
+      }
+
       function summarizeCaseStatusRecords(records) {
         return records.reduce((summary, entry) => {
           const decision = getCaseStatusDecision(entry);
@@ -1509,6 +1592,140 @@
               <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
             </div>
           </div>
+        `;
+      }
+
+      function updateResultMeta(kind, payload) {
+        const timestamp = nowLabel();
+        if (!kind || !payload) {
+          resultMetaEl.textContent = "Waiting for your first search.";
+          return;
+        }
+
+        if (kind === "causeList") {
+          const matchedCases = (payload.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+          resultMetaEl.textContent = `Updated ${timestamp} • ${payload.totalListsWithMatches || 0} list(s) • ${matchedCases} matched case(s)`;
+          return;
+        }
+
+        if (kind === "caseStatus") {
+          const display = getCaseStatusDisplayModel(payload);
+          resultMetaEl.textContent = `Updated ${timestamp} • ${display.totalRecords || 0} matter(s)`;
+          return;
+        }
+
+        resultMetaEl.textContent = `Updated ${timestamp}`;
+      }
+
+      function renderCaseStatusTable(records, emptyMessage) {
+        if (!records.length) {
+          return `<div class="result-block">${escapeHtml(emptyMessage)}</div>`;
+        }
+
+        const rows = records.map((entry, index) => {
+          const decisionText = entry.decisionDate || "Awaiting disposal";
+          const badgeClass = entry.status === "Disposed" ? "disposed" : "pending";
+
+          return `
+            <div class="case-row">
+              <div class="kv">Result No: ${escapeHtml(entry.resultNumber || index + 1)}</div>
+              <strong>${escapeHtml(`${entry.caseTypeName || "-"} ${entry.caseNumber || "-"}`)}</strong>
+              <div>${escapeHtml(entry.petitioner || "-")}</div>
+              <div class="kv">Respondent: ${escapeHtml(entry.respondent || "-")}</div>
+              <div class="kv">Advocate: ${escapeHtml(entry.advocate || "-")}</div>
+              <div class="kv">Case Type: ${escapeHtml(entry.caseTypeName || "-")}</div>
+              <div class="kv">Full Case No: ${escapeHtml(entry.fullCaseNumber || "-")}</div>
+              <div class="kv">CINO: ${escapeHtml(entry.cino || "-")}</div>
+              <div class="kv">Status: <span class="badge ${escapeHtml(badgeClass)}">${escapeHtml(entry.status || "Pending")}</span></div>
+              <div class="kv">Decision Date: ${escapeHtml(decisionText)}</div>
+            </div>
+          `;
+        }).join("");
+
+        return `<div class="case-list">${rows}</div>`;
+      }
+
+      function renderCaseStatusResults(data) {
+        const display = getCaseStatusDisplayModel(data);
+
+        if (display.view === "records" && display.records.length) {
+          const pendingRecords = display.records
+            .filter((entry) => entry.status === "Pending")
+            .sort((a, b) => String(b.caseNumber || "").localeCompare(String(a.caseNumber || "")));
+          const disposedRecords = display.records
+            .filter((entry) => entry.status === "Disposed")
+            .sort((a, b) => String(b.decisionDate || "").localeCompare(String(a.decisionDate || "")));
+          const caseTypes = [...new Set(display.records.map((entry) => entry.caseTypeName).filter(Boolean))];
+          const firstAdvocate = display.records[0]?.advocate || "-";
+
+          return `
+            <div class="summary-grid">
+              <div class="summary-card">Total Matters<strong>${escapeHtml(display.totalRecords)}</strong></div>
+              <div class="summary-card">Pending Matters<strong>${escapeHtml(display.pendingCount)}</strong></div>
+              <div class="summary-card">Disposed Matters<strong>${escapeHtml(display.disposedCount)}</strong></div>
+              <div class="summary-card">Case Types<strong>${escapeHtml(caseTypes.length)}</strong></div>
+            </div>
+            <div class="result-block">
+              <div class="kv">Readable case-status list generated from the live court response for ${escapeHtml(firstAdvocate)}.</div>
+              <div class="kv">Types found: ${escapeHtml(caseTypes.join(", "))}</div>
+            </div>
+            <div class="result-block">
+              <h3>Pending Matters</h3>
+              <div class="kv">These are the matters where no disposal date was returned by the court service.</div>
+            </div>
+            ${renderCaseStatusTable(pendingRecords, "No pending matters were returned in this result set.")}
+            <div class="result-block">
+              <h3>Disposed Matters</h3>
+              <div class="kv">These are the matters that already have a decision date.</div>
+            </div>
+            ${renderCaseStatusTable(disposedRecords, "No disposed matters were returned in this result set.")}
+          `;
+        }
+
+        if (display.view === "html" && display.html) {
+          return `
+            <div class="summary-grid">
+              <div class="summary-card">Total Records<strong>${escapeHtml(display.totalRecords)}</strong></div>
+            </div>
+            <div class="html-result">${display.html}</div>
+          `;
+        }
+
+        return `<div class="result-block">${escapeHtml(display.message || "No structured case-status records were found in this response.")}</div>`;
+      }
+
+      function summarizeSavedData(latestRun) {
+        if (!latestRun) {
+          return "No saved data yet.";
+        }
+
+        const data = latestRun.resultJson;
+        if (latestRun.sourceType.startsWith("cause_list")) {
+          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
+          return `
+            <div class="saved-meta">Cause-list snapshot</div>
+            <div class="saved-meta">${escapeHtml(data.query || "")}</div>
+            <div class="saved-meta">${escapeHtml(data.totalListsWithMatches || 0)} list(s), ${escapeHtml(matchedCases)} matched case(s)</div>
+            <div class="saved-meta">${escapeHtml(data.startDate || "-")} to ${escapeHtml(data.endDate || "-")}</div>
+            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+          `;
+        }
+
+        const display = getCaseStatusDisplayModel(data);
+        if (display.view === "records") {
+          return `
+            <div class="saved-meta">Case-status snapshot</div>
+            <div class="saved-meta">${escapeHtml(display.totalRecords)} matter(s)</div>
+            <div class="saved-meta">Pending: ${escapeHtml(display.pendingCount)} | Disposed: ${escapeHtml(display.disposedCount)}</div>
+            <div class="saved-meta">Advocate: ${escapeHtml(display.records[0]?.advocate || "-")}</div>
+            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
+          `;
+        }
+
+        return `
+          <div class="saved-meta">Case-status snapshot</div>
+          <div class="saved-meta">${escapeHtml(display.message || "No structured case-status records found.")}</div>
+          <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
         `;
       }
 

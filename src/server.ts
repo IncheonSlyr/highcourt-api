@@ -3,6 +3,7 @@ import path from "node:path";
 import { z } from "zod";
 import { config } from "./config";
 import { causeListCacheDb, getDbPool, initDb, resetAllData, savedSearchDb } from "./db";
+import { buildCaseStatusDisplayResponse } from "./lib/caseStatusDisplay";
 import { CauseListService } from "./services/causeListService";
 import { CauseListSyncService } from "./services/causeListSyncService";
 import { CaseStatusService } from "./services/caseStatusService";
@@ -213,7 +214,7 @@ app.post("/api/case-status/search/case-number", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByCaseNumber(body);
-    res.json(result);
+    res.json(buildCaseStatusDisplayResponse(result));
   } catch (error) {
     next(error);
   }
@@ -233,7 +234,7 @@ app.post("/api/case-status/search/party-name", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByPartyName(body);
-    res.json(result);
+    res.json(buildCaseStatusDisplayResponse(result));
   } catch (error) {
     next(error);
   }
@@ -252,7 +253,7 @@ app.post("/api/case-status/search/advocate-name", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByAdvocateName(body);
-    res.json(result);
+    res.json(buildCaseStatusDisplayResponse(result));
   } catch (error) {
     next(error);
   }
@@ -409,8 +410,9 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         year: record.year,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      await savedSearchDb.addRun(id, "case_status_party", result);
-      res.json(result);
+      const displayResult = buildCaseStatusDisplayResponse(result);
+      await savedSearchDb.addRun(id, "case_status_party", displayResult);
+      res.json(displayResult);
       return;
     }
 
@@ -433,8 +435,9 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         advocateName: record.queryText,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      await savedSearchDb.addRun(id, "case_status_advocate", result);
-      res.json(result);
+      const displayResult = buildCaseStatusDisplayResponse(result);
+      await savedSearchDb.addRun(id, "case_status_advocate", displayResult);
+      res.json(displayResult);
       return;
     }
 
@@ -458,8 +461,9 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         caseNumber: record.caseNumber,
         year: record.year,
       });
-      await savedSearchDb.addRun(id, "case_status_case_number", result);
-      res.json(result);
+      const displayResult = buildCaseStatusDisplayResponse(result);
+      await savedSearchDb.addRun(id, "case_status_case_number", displayResult);
+      res.json(displayResult);
       return;
     }
 
