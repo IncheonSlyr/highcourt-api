@@ -304,6 +304,13 @@
         margin-bottom: 12px;
       }
 
+      .saved-filter-row {
+        display: grid;
+        grid-template-columns: minmax(0, 280px);
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
       .saved-item {
         border: 1px solid var(--line);
         border-radius: 16px;
@@ -863,18 +870,20 @@
           <div id="savedSearchesPanel" class="panel">
             <h2>Saved Searches</h2>
             <p class="note">Save your common lawyer, party, or case lookups here and rerun them later without filling the form again.</p>
-            <div class="saved-sections">
-              <section class="saved-group">
-                <h3>Cause List Searches</h3>
-                <p class="note">Saved lawyer, party, and case-text searches for upcoming lists.</p>
-                <div id="savedSearchesCause" class="saved-list"></div>
-              </section>
-              <section class="saved-group">
-                <h3>Case Status Searches</h3>
-                <p class="note">Saved party, advocate, and case-number checks.</p>
-                <div id="savedSearchesCaseStatus" class="saved-list"></div>
-              </section>
+            <div class="saved-filter-row">
+              <div>
+                <label for="savedSearchTypeSelect">Saved Search Type</label>
+                <select id="savedSearchTypeSelect">
+                  <option value="cause">Cause List</option>
+                  <option value="caseStatus">Case Status</option>
+                </select>
+              </div>
             </div>
+            <section class="saved-group">
+              <h3 id="savedSearchGroupTitle">Cause List Searches</h3>
+              <p class="note" id="savedSearchGroupNote">Saved lawyer, party, and case-text searches for upcoming lists.</p>
+              <div id="savedSearchesList" class="saved-list"></div>
+            </section>
           </div>
 
           <div id="savedDataPanel" class="panel">
@@ -952,8 +961,10 @@
       const resultsEl = document.getElementById("results");
       const resultMode = document.getElementById("resultMode");
       const resultMetaEl = document.getElementById("resultMeta");
-      const savedSearchesCauseEl = document.getElementById("savedSearchesCause");
-      const savedSearchesCaseStatusEl = document.getElementById("savedSearchesCaseStatus");
+      const savedSearchTypeSelect = document.getElementById("savedSearchTypeSelect");
+      const savedSearchGroupTitleEl = document.getElementById("savedSearchGroupTitle");
+      const savedSearchGroupNoteEl = document.getElementById("savedSearchGroupNote");
+      const savedSearchesListEl = document.getElementById("savedSearchesList");
       const savedDataCauseEl = document.getElementById("savedDataCause");
       const savedDataCaseStatusEl = document.getElementById("savedDataCaseStatus");
       const activityBannerEl = document.getElementById("activityBanner");
@@ -1578,6 +1589,17 @@
         `;
       }
 
+      function updateSavedSearchGroup(type) {
+        if (type === "caseStatus") {
+          savedSearchGroupTitleEl.textContent = "Case Status Searches";
+          savedSearchGroupNoteEl.textContent = "Saved party, advocate, and case-number checks.";
+          return;
+        }
+
+        savedSearchGroupTitleEl.textContent = "Cause List Searches";
+        savedSearchGroupNoteEl.textContent = "Saved lawyer, party, and case-text searches for upcoming lists.";
+      }
+
       function renderSavedDataCard(item) {
         return `
           <div class="saved-item">
@@ -2006,10 +2028,7 @@
           const data = await api(`/api/saved-searches/${id}/run`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              startDate: causeStartDate.value,
-              days: Number(causeDays.value)
-            })
+            body: JSON.stringify({})
           });
           setOutput("Saved Search Rerun", data, "causeList");
           return;
@@ -2059,14 +2078,12 @@
 
         savedSearchCountEl.textContent = String(items.length);
         savedSnapshotCountEl.textContent = String(itemsWithData.length);
-
-        savedSearchesCauseEl.innerHTML = causeSearches.length
-          ? causeSearches.map(renderSavedSearchCard).join("")
-          : emptyCollection("No cause-list searches saved yet.");
-
-        savedSearchesCaseStatusEl.innerHTML = caseStatusSearches.length
-          ? caseStatusSearches.map(renderSavedSearchCard).join("")
-          : emptyCollection("No case-status searches saved yet.");
+        const selectedType = savedSearchTypeSelect.value || "cause";
+        updateSavedSearchGroup(selectedType);
+        const selectedItems = selectedType === "caseStatus" ? caseStatusSearches : causeSearches;
+        savedSearchesListEl.innerHTML = selectedItems.length
+          ? selectedItems.map(renderSavedSearchCard).join("")
+          : emptyCollection(selectedType === "caseStatus" ? "No case-status searches saved yet." : "No cause-list searches saved yet.");
 
         savedDataCauseEl.innerHTML = causeSnapshots.length
           ? causeSnapshots.map(renderSavedDataCard).join("")
@@ -2119,6 +2136,9 @@
       tabs.forEach((tab) => tab.addEventListener("click", () => setActivePanel(tab.dataset.tab)));
       modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
       benchSelect.addEventListener("change", loadCaseTypes);
+      savedSearchTypeSelect.addEventListener("change", () => {
+        void loadSavedSearches();
+      });
 
       loadCaptchaBtn.addEventListener("click", async () => {
         try {
