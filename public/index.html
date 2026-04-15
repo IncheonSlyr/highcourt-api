@@ -6,14 +6,17 @@
     <title>High Court Tracker</title>
     <style>
       :root {
-        --bg: #f4efe5;
-        --paper: #fffaf2;
+        --bg: #f5efe5;
+        --paper: #fffaf3;
+        --paper-strong: #ffffff;
         --ink: #221d19;
-        --muted: #6e635a;
+        --muted: #6f645b;
         --line: #d9cfbf;
         --accent: #8d2f23;
-        --accent-2: #1f4b6e;
-        --soft: #ece2d1;
+        --accent-soft: rgba(141, 47, 35, 0.12);
+        --blue: #1f4b6e;
+        --blue-soft: rgba(31, 75, 110, 0.12);
+        --shadow: 0 18px 50px rgba(34, 29, 25, 0.08);
       }
 
       * {
@@ -22,97 +25,93 @@
 
       body {
         margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
         color: var(--ink);
-        overflow-x: hidden;
+        font-family: Georgia, "Times New Roman", serif;
         background:
-          radial-gradient(circle at top right, rgba(31, 75, 110, 0.12), transparent 26%),
-          radial-gradient(circle at top left, rgba(141, 47, 35, 0.14), transparent 24%),
+          radial-gradient(circle at top right, rgba(31, 75, 110, 0.12), transparent 28%),
+          radial-gradient(circle at top left, rgba(141, 47, 35, 0.12), transparent 24%),
           linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
       }
 
       .shell {
-        max-width: 1200px;
+        max-width: 1220px;
         margin: 0 auto;
-        padding: 24px 18px 60px;
+        padding: 18px 18px 48px;
+      }
+
+      .hero,
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
       }
 
       .hero {
         padding: 28px;
-        background: linear-gradient(135deg, rgba(255,250,242,0.98), rgba(244,239,229,0.98));
-        border: 1px solid var(--line);
-        border-radius: 26px;
-        box-shadow: 0 18px 50px rgba(34, 29, 25, 0.08);
       }
 
-      h1, h2, h3 {
+      .card {
+        padding: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
         margin: 0 0 10px;
       }
 
       h1 {
-        font-size: clamp(2rem, 4vw, 3.4rem);
-        line-height: 1;
+        font-size: clamp(2.2rem, 5vw, 3.7rem);
+        line-height: 0.95;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .sub,
+      .note,
+      .status,
+      .kv,
+      .saved-meta,
+      .result-meta,
+      .table-sub {
+        color: var(--muted);
       }
 
       .sub {
-        color: var(--muted);
-        max-width: 850px;
-        font-size: 1.04rem;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: 1.15fr 0.85fr;
-        gap: 18px;
-        margin-top: 20px;
-      }
-
-      .card {
-        background: var(--paper);
-        border: 1px solid var(--line);
-        border-radius: 22px;
-        padding: 20px;
-      }
-
-      .spinner {
-        width: 16px;
-        height: 16px;
-        border-radius: 999px;
-        border: 2px solid rgba(31, 75, 110, 0.2);
-        border-top-color: var(--accent-2);
-        animation: spin 0.8s linear infinite;
-        flex-shrink: 0;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
+        max-width: 860px;
+        font-size: 1.03rem;
       }
 
       .tabs {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin: 16px 0 18px;
-        align-items: center;
+        margin-top: 18px;
       }
 
       .tab {
-        border: 1px solid var(--line);
-        background: #fff;
-        color: var(--ink);
-        border-radius: 999px;
-        padding: 10px 16px;
-        cursor: pointer;
         width: auto;
-        flex-shrink: 0;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper-strong);
+        color: var(--ink);
+        cursor: pointer;
       }
 
       .tab.active {
         background: var(--accent);
-        color: #fff;
         border-color: var(--accent);
+        color: #fff;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 18px;
+        margin-top: 18px;
       }
 
       .panel {
@@ -123,92 +122,108 @@
         display: block;
       }
 
-      label {
-        display: block;
-        margin: 10px 0 6px;
-        color: var(--muted);
-        font-size: 0.94rem;
-      }
-
-      input, select, textarea, button {
-        width: 100%;
-        font: inherit;
-        border-radius: 14px;
-        border: 1px solid #ccbfae;
-        padding: 12px 14px;
-        background: white;
-      }
-
-      textarea {
-        resize: vertical;
-        min-height: 82px;
+      .row,
+      .row-3,
+      .saved-filter-row,
+      .captcha-box {
+        display: grid;
+        gap: 12px;
       }
 
       .row {
-        display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
       }
 
       .row-3 {
-        display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
+      }
+
+      .saved-filter-row {
+        grid-template-columns: minmax(0, 280px);
+        margin-bottom: 14px;
+      }
+
+      .captcha-box {
+        grid-template-columns: 160px 1fr;
+        align-items: end;
+      }
+
+      label {
+        display: block;
+        margin: 10px 0 6px;
+        font-size: 0.93rem;
+        color: var(--muted);
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        width: 100%;
+        border: 1px solid #ccbfae;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+        background: var(--paper-strong);
+      }
+
+      textarea {
+        min-height: 84px;
+        resize: vertical;
       }
 
       button {
-        cursor: pointer;
+        margin-top: 14px;
         border: none;
         background: var(--accent);
         color: #fff;
         font-weight: 700;
-        margin-top: 14px;
-        transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
       }
 
       button:hover {
         transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(34, 29, 25, 0.08);
       }
 
       button:disabled {
+        opacity: 0.7;
         cursor: wait;
-        opacity: 0.68;
         transform: none;
-        box-shadow: none;
       }
 
       button.busy::after {
-        content: " ";
+        content: "";
         display: inline-block;
         width: 12px;
         height: 12px;
         margin-left: 8px;
         border-radius: 999px;
-        border: 2px solid rgba(255, 255, 255, 0.38);
+        border: 2px solid rgba(255, 255, 255, 0.35);
         border-top-color: #fff;
         animation: spin 0.8s linear infinite;
         vertical-align: middle;
       }
 
       button.alt {
-        background: var(--accent-2);
+        background: var(--blue);
       }
 
       button.ghost {
+        border: 1px solid var(--line);
         background: #f5efe4;
         color: var(--ink);
-        border: 1px solid var(--line);
       }
 
-      .actions {
+      .actions,
+      .saved-actions {
         display: flex;
-        gap: 10px;
         flex-wrap: wrap;
-        margin-top: 14px;
+        gap: 10px;
       }
 
-      .actions button {
+      .actions button,
+      .saved-actions button {
         width: auto;
         margin-top: 0;
       }
@@ -216,249 +231,57 @@
       .status {
         min-height: 22px;
         margin-top: 12px;
-        color: var(--muted);
-      }
-
-      pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-word;
-        background: #1f1b18;
-        color: #f8f1e8;
-        padding: 16px;
-        border-radius: 18px;
-        min-height: 280px;
-        overflow: auto;
-      }
-
-      .saved-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .saved-sections {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .saved-group {
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.66);
-        padding: 14px;
-      }
-
-      .saved-group h3 {
-        margin-bottom: 4px;
-      }
-
-      .saved-group .note {
-        margin-top: 0;
-        margin-bottom: 12px;
-      }
-
-      .saved-filter-row {
-        display: grid;
-        grid-template-columns: minmax(0, 280px);
-        gap: 12px;
-        margin-bottom: 14px;
-      }
-
-      .saved-item {
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 14px;
-        background: #fff;
-      }
-
-      .saved-meta {
-        color: var(--muted);
-        font-size: 0.92rem;
-        margin-top: 4px;
-      }
-
-      .saved-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-      }
-
-      .saved-actions button {
-        width: auto;
-        padding: 8px 12px;
-        margin-top: 0;
-      }
-
-      .captcha-box {
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 12px;
-        align-items: end;
       }
 
       .captcha-preview {
-        width: 100%;
-        min-height: 58px;
+        min-height: 64px;
         border: 1px solid var(--line);
-        border-radius: 12px;
-        background: #fff;
+        border-radius: 14px;
+        background: var(--paper-strong);
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
       }
 
-      .note {
-        font-size: 0.93rem;
-        color: var(--muted);
-        margin-top: 10px;
-      }
-
-      .check-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 8px;
-        margin-top: 8px;
-      }
-
-      .check-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 10px 12px;
-        background: #fff;
-      }
-
-      .check-item input {
-        width: auto;
-        margin: 0;
-      }
-
-      .pill {
-        display: inline-block;
-        background: var(--soft);
-        color: var(--ink);
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 0.88rem;
-      }
-
-      .pill.accent {
-        background: rgba(141, 47, 35, 0.12);
-        color: var(--accent);
-      }
-
-      .pill.blue {
-        background: rgba(31, 75, 110, 0.12);
-        color: var(--accent-2);
-      }
-
-      .result-topbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-      }
-
-      .result-meta {
-        color: var(--muted);
-        font-size: 0.92rem;
-      }
-
-      .results-view {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 14px;
-      }
-
-      .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-      }
-
-      .summary-card {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 12px;
-      }
-
-      .summary-card strong {
-        display: block;
-        font-size: 1.2rem;
-        margin-top: 4px;
-      }
-
-      .result-block {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 14px;
-        overflow: hidden;
-      }
-
-      .result-block h3 {
-        margin-bottom: 6px;
-      }
-
-      .empty-state {
-        padding: 22px;
-        border-radius: 18px;
-        border: 1px dashed var(--line);
-        background: rgba(255, 255, 255, 0.7);
-        color: var(--muted);
-      }
-
+      .result-topbar,
       .section-title {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        margin-bottom: 10px;
       }
 
+      .results-view,
+      .saved-list,
       .case-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-top: 10px;
+        gap: 12px;
       }
 
-      .case-row {
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 12px;
-        background: #fffdf9;
-        overflow-wrap: anywhere;
-      }
-
-      .case-row strong {
-        display: inline-block;
-        margin-bottom: 6px;
-      }
-
-      .kv {
-        color: var(--muted);
-        font-size: 0.93rem;
-        margin-top: 3px;
-      }
-
+      .pill,
       .badge {
         display: inline-flex;
         align-items: center;
         border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 0.8rem;
+        padding: 5px 10px;
+        font-size: 0.82rem;
         font-weight: 700;
+      }
+
+      .pill {
+        background: #efe3d4;
+      }
+
+      .pill.accent {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .pill.blue {
+        background: var(--blue-soft);
+        color: var(--blue);
       }
 
       .badge.pending {
@@ -471,25 +294,67 @@
         color: #1b5b2a;
       }
 
-      .data-table-wrap {
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .summary-card,
+      .result-block,
+      .saved-item,
+      .case-row,
+      .saved-group {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper-strong);
+      }
+
+      .summary-card,
+      .result-block,
+      .saved-item,
+      .saved-group {
+        padding: 14px;
+      }
+
+      .summary-card strong {
+        display: block;
+        margin-top: 5px;
+        font-size: 1.1rem;
+      }
+
+      .case-row {
+        padding: 12px;
+      }
+
+      .empty-state {
+        padding: 20px;
+        border: 1px dashed var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+      }
+
+      .data-table-wrap,
+      .html-result {
         overflow: auto;
         border: 1px solid var(--line);
-        border-radius: 16px;
-        background: #fff;
+        border-radius: 18px;
+        background: var(--paper-strong);
       }
 
       .data-table {
         width: 100%;
+        min-width: 820px;
         border-collapse: collapse;
-        min-width: 980px;
       }
 
       .data-table th,
       .data-table td {
         padding: 12px 14px;
         border-bottom: 1px solid var(--line);
-        vertical-align: top;
         text-align: left;
+        vertical-align: top;
       }
 
       .data-table th {
@@ -508,18 +373,8 @@
         font-weight: 700;
       }
 
-      .table-sub {
-        margin-top: 4px;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
       .html-result {
-        border: 1px solid var(--line);
-        border-radius: 14px;
         padding: 12px;
-        background: #fff;
-        overflow: auto;
       }
 
       .html-result table {
@@ -527,10 +382,22 @@
         border-collapse: collapse;
       }
 
-      .html-result td, .html-result th {
-        border: 1px solid var(--line);
+      .html-result td,
+      .html-result th {
         padding: 8px;
-        vertical-align: top;
+        border: 1px solid var(--line);
+      }
+
+      pre {
+        margin: 0;
+        min-height: 200px;
+        padding: 16px;
+        border-radius: 18px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #1f1b18;
+        color: #f8f1e8;
+        overflow: auto;
       }
 
       details {
@@ -542,15 +409,16 @@
         color: var(--muted);
       }
 
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
       @media (max-width: 960px) {
         .grid {
           grid-template-columns: 1fr;
         }
-
-        .shell {
-          padding-bottom: 32px;
-        }
-
       }
 
       @media (max-width: 720px) {
@@ -568,22 +436,17 @@
           flex-wrap: nowrap;
           overflow-x: auto;
           padding-bottom: 4px;
-          margin-right: -4px;
         }
 
-        .tab {
-          white-space: nowrap;
-        }
-
-        .row, .row-3, .captcha-box {
+        .row,
+        .row-3,
+        .saved-filter-row,
+        .captcha-box {
           grid-template-columns: 1fr;
         }
 
-        .summary-grid {
-          grid-template-columns: 1fr 1fr;
-        }
-
-        .actions {
+        .actions,
+        .saved-actions {
           flex-direction: column;
         }
 
@@ -592,40 +455,8 @@
           width: 100%;
         }
 
-        .saved-actions {
-          flex-direction: column;
-        }
-
-        .captcha-preview {
-          min-height: 72px;
-        }
-
-        pre {
-          min-height: 180px;
-          padding: 12px;
-          font-size: 0.86rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        h1 {
-          font-size: 2rem;
-        }
-
-        .sub {
-          font-size: 0.95rem;
-        }
-
         .summary-grid {
           grid-template-columns: 1fr;
-        }
-
-        .summary-card strong {
-          font-size: 1.05rem;
-        }
-
-        input, select, textarea, button {
-          padding: 11px 12px;
         }
       }
     </style>
@@ -653,6 +484,7 @@
               <button class="ghost" id="syncCauseListsBtn">Sync Latest Cause Lists</button>
             </div>
             <div class="note" id="syncStatusNote">Checking sync status...</div>
+
             <div class="row">
               <div>
                 <label for="causeQuery">Lawyer, party, or case text</label>
@@ -663,6 +495,7 @@
                 <input id="causeLabel" placeholder="e.g. Track UDAYNARAYAN matters" />
               </div>
             </div>
+
             <div class="row">
               <div>
                 <label for="causeStartDate">Start date</label>
@@ -673,6 +506,7 @@
                 <input id="causeDays" type="number" min="1" max="14" value="7" />
               </div>
             </div>
+
             <div class="row">
               <div>
                 <label for="causeSideSelect">Cause List Side</label>
@@ -699,8 +533,10 @@
                 </select>
               </div>
             </div>
+
             <label for="causeNotes">Notes</label>
             <textarea id="causeNotes" placeholder="Optional notes for this saved search"></textarea>
+
             <div class="actions">
               <button id="causeSearchBtn">Search Upcoming Cases</button>
               <button class="alt" id="causeSaveBtn">Save Search</button>
@@ -711,8 +547,8 @@
           <div id="caseStatusPanel" class="panel">
             <h2>Case Status</h2>
             <div class="tabs">
-              <button class="tab active" data-mode="party">Party</button>
-              <button class="tab" data-mode="advocate">Advocate</button>
+              <button class="tab" data-mode="party">Party</button>
+              <button class="tab active" data-mode="advocate">Advocate</button>
               <button class="tab" data-mode="caseNumber">Case Number</button>
             </div>
 
@@ -746,18 +582,18 @@
               </div>
             </div>
 
-            <div class="row" id="partyFields">
+            <div class="row" id="partyFields" style="display:none;">
               <div>
                 <label for="partyName">Party name</label>
                 <input id="partyName" placeholder="e.g. UDAYNARAYAN BETAL" />
               </div>
               <div>
                 <label for="partyYear">Year</label>
-                <input id="partyYear" placeholder="e.g. 2024" />
+                <input id="partyYear" placeholder="e.g. 2026" />
               </div>
             </div>
 
-            <div class="row" id="advocateFields" style="display:none;">
+            <div class="row" id="advocateFields">
               <div>
                 <label for="advocateName">Advocate name</label>
                 <input id="advocateName" placeholder="e.g. UDAYNARAYAN BETAL" />
@@ -779,7 +615,7 @@
               </div>
               <div>
                 <label for="caseYearInput">Year</label>
-                <input id="caseYearInput" placeholder="e.g. 2024" />
+                <input id="caseYearInput" placeholder="e.g. 2026" />
               </div>
             </div>
 
@@ -788,14 +624,14 @@
               <button class="alt" id="caseStatusSaveBtn">Save This Search</button>
             </div>
             <div class="note">
-              eCourts case-status searches require a captcha session each time. Saved searches keep the details, but rerunning them still needs a fresh captcha.
+              Case-status searches need a fresh captcha session whenever you run them.
             </div>
             <div class="status" id="caseStatusStatus"></div>
           </div>
 
           <div id="savedSearchesPanel" class="panel">
             <h2>Saved Searches</h2>
-            <p class="note">Save your common lawyer, party, or case lookups here and rerun them later without filling the form again.</p>
+            <p class="note">Save your common lookups here and rerun them later without filling the form again.</p>
             <div class="saved-filter-row">
               <div>
                 <label for="savedSearchTypeSelect">Saved Search Type</label>
@@ -814,7 +650,7 @@
 
           <div id="savedDataPanel" class="panel">
             <h2>Saved Data</h2>
-            <p class="note">Open the latest saved snapshots directly here without rerunning the search first.</p>
+            <p class="note">Open the latest stored snapshots directly here without rerunning first.</p>
             <div class="saved-filter-row">
               <div>
                 <label for="savedDataTypeSelect">Saved Data Type</label>
@@ -848,1414 +684,6 @@
         </div>
       </section>
     </div>
-
-    <script>
-      const state = {
-        currentCaseMode: "party",
-        sessionId: null,
-        benches: [],
-        caseTypes: [],
-        lastSearchPayload: null,
-        lastSearchKind: null
-      };
-
-      const tabs = document.querySelectorAll(".tab[data-tab]");
-      const panels = document.querySelectorAll(".panel");
-      const modeTabs = document.querySelectorAll(".tab[data-mode]");
-
-      const causeQuery = document.getElementById("causeQuery");
-      const causeLabel = document.getElementById("causeLabel");
-      const causeStartDate = document.getElementById("causeStartDate");
-      const causeDays = document.getElementById("causeDays");
-      const causeNotes = document.getElementById("causeNotes");
-      const causeStatus = document.getElementById("causeStatus");
-      const syncStatusNote = document.getElementById("syncStatusNote");
-      const causeSideSelect = document.getElementById("causeSideSelect");
-      const causeTypeSelectFilter = document.getElementById("causeTypeSelectFilter");
-
-      const benchSelect = document.getElementById("benchSelect");
-      const statusFilter = document.getElementById("statusFilter");
-      const captchaPreview = document.getElementById("captchaPreview");
-      const captchaInput = document.getElementById("captchaInput");
-      const partyName = document.getElementById("partyName");
-      const partyYear = document.getElementById("partyYear");
-      const advocateName = document.getElementById("advocateName");
-      const advocateLabel = document.getElementById("advocateLabel");
-      const caseTypeSelect = document.getElementById("caseTypeSelect");
-      const caseNumberInput = document.getElementById("caseNumberInput");
-      const caseYearInput = document.getElementById("caseYearInput");
-      const caseStatusStatus = document.getElementById("caseStatusStatus");
-      const resultsViewEl = document.getElementById("resultsView");
-      const resultsEl = document.getElementById("results");
-      const resultMode = document.getElementById("resultMode");
-      const resultMetaEl = document.getElementById("resultMeta");
-      const savedSearchTypeSelect = document.getElementById("savedSearchTypeSelect");
-      const savedDataTypeSelect = document.getElementById("savedDataTypeSelect");
-      const savedSearchGroupTitleEl = document.getElementById("savedSearchGroupTitle");
-      const savedSearchGroupNoteEl = document.getElementById("savedSearchGroupNote");
-      const savedDataGroupTitleEl = document.getElementById("savedDataGroupTitle");
-      const savedDataGroupNoteEl = document.getElementById("savedDataGroupNote");
-      const savedSearchesListEl = document.getElementById("savedSearchesList");
-      const savedDataListEl = document.getElementById("savedDataList");
-      const activityBannerEl = document.getElementById("activityBanner");
-      const activityTextEl = document.getElementById("activityText");
-      const activitySummaryEl = document.getElementById("activitySummary");
-      const savedSearchCountEl = document.getElementById("savedSearchCount");
-      const savedSnapshotCountEl = document.getElementById("savedSnapshotCount");
-      const causeSearchBtn = document.getElementById("causeSearchBtn");
-      const causeSaveBtn = document.getElementById("causeSaveBtn");
-      const syncCauseListsBtn = document.getElementById("syncCauseListsBtn");
-      const loadCaptchaBtn = document.getElementById("loadCaptchaBtn");
-      const refreshCaptchaBtn = document.getElementById("refreshCaptchaBtn");
-      const caseStatusSearchBtn = document.getElementById("caseStatusSearchBtn");
-      const caseStatusSaveBtn = document.getElementById("caseStatusSaveBtn");
-
-      causeStartDate.value = new Date().toISOString().slice(0, 10);
-
-      const buttonLabels = new Map();
-      [causeSearchBtn, causeSaveBtn, syncCauseListsBtn, loadCaptchaBtn, refreshCaptchaBtn, caseStatusSearchBtn, caseStatusSaveBtn]
-        .filter(Boolean)
-        .forEach((button) => buttonLabels.set(button, button.textContent));
-
-      function escapeHtml(value) {
-        return String(value ?? "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
-      }
-
-      function nowLabel() {
-        return new Date().toLocaleString();
-      }
-
-      function setActivity(message, isActive = false) {
-        if (activitySummaryEl) {
-          activitySummaryEl.textContent = isActive ? "Working" : message;
-        }
-        if (activityTextEl) {
-          activityTextEl.textContent = message;
-        }
-        if (activityBannerEl) {
-          activityBannerEl.classList.toggle("active", isActive);
-        }
-      }
-
-      function setButtonBusy(button, isBusy, busyLabel) {
-        if (!button) return;
-        if (isBusy) {
-          button.disabled = true;
-          button.classList.add("busy");
-          button.textContent = busyLabel;
-          return;
-        }
-
-        button.disabled = false;
-        button.classList.remove("busy");
-        button.textContent = buttonLabels.get(button) || button.textContent;
-      }
-
-      async function runAction({ button, busyLabel, startMessage, doneMessage, onError }, task) {
-        setButtonBusy(button, true, busyLabel);
-        setActivity(startMessage, true);
-        try {
-          const result = await task();
-          setActivity(doneMessage || "Ready", false);
-          return result;
-        } catch (error) {
-          const message = error instanceof Error ? error.message : "Something went wrong.";
-          setActivity(message, false);
-          if (onError) {
-            onError(message);
-          }
-          throw error;
-        } finally {
-          setButtonBusy(button, false);
-        }
-      }
-
-      function emptyCollection(message) {
-        return `<div class="empty-state">${escapeHtml(message)}</div>`;
-      }
-
-      function updateResultMeta(kind, payload) {
-        const timestamp = nowLabel();
-        if (!kind || !payload) {
-          resultMetaEl.textContent = "Waiting for your first search.";
-          return;
-        }
-
-        if (kind === "causeList") {
-          const matchedCases = (payload.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-          resultMetaEl.textContent = `Updated ${timestamp} • ${payload.totalListsWithMatches || 0} list(s) • ${matchedCases} matched case(s)`;
-          return;
-        }
-
-        if (kind === "caseStatus") {
-          const records = getCaseStatusRecords(payload);
-          resultMetaEl.textContent = `Updated ${timestamp} • ${records.length || payload?.totRecords || 0} matter(s)`;
-          return;
-        }
-
-        resultMetaEl.textContent = `Updated ${timestamp}`;
-      }
-
-      function sideLabel(value) {
-        return {
-          A: "Appellate Side",
-          O: "Original Side",
-          J: "Jalpaiguri",
-          P: "Port Blair"
-        }[value] || value;
-      }
-
-      function listTypeLabel(value) {
-        return {
-          D: "Daily",
-          M: "Monthly",
-          S: "Supplementary 1",
-          S2: "Supplementary 2",
-          S3: "Supplementary 3",
-          S4: "Supplementary 4",
-          S5: "Supplementary 5",
-          LA: "Lok Adalat"
-        }[value] || value;
-      }
-
-      function normalizeCaseStatusText(value, fallback = "-") {
-        const text = String(value ?? "").replace(/\s+/g, " ").trim();
-        return text && text !== "NA" && text !== "N/A" && text !== "N" ? text : fallback;
-      }
-
-      function tryParseCaseStatusJson(value) {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return null;
-        }
-      }
-
-      function extractCaseStatusObjects(value) {
-        const records = [];
-        let depth = 0;
-        let start = -1;
-        let inString = false;
-        let escaped = false;
-
-        for (let index = 0; index < value.length; index += 1) {
-          const char = value[index];
-
-          if (inString) {
-            if (escaped) {
-              escaped = false;
-            } else if (char === "\\") {
-              escaped = true;
-            } else if (char === "\"") {
-              inString = false;
-            }
-            continue;
-          }
-
-          if (char === "\"") {
-            inString = true;
-            continue;
-          }
-
-          if (char === "{") {
-            if (depth === 0) {
-              start = index;
-            }
-            depth += 1;
-            continue;
-          }
-
-          if (char === "}") {
-            depth -= 1;
-            if (depth === 0 && start >= 0) {
-              const parsed = tryParseCaseStatusJson(value.slice(start, index + 1));
-              if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-                records.push(parsed);
-              }
-              start = -1;
-            }
-          }
-        }
-
-        return records;
-      }
-
-      function getCaseStatusRecords(data) {
-        if (typeof data === "string") {
-          const trimmed = data.trim();
-          const parsed = tryParseCaseStatusJson(trimmed);
-          if (Array.isArray(parsed)) {
-            return parsed;
-          }
-          if (parsed && typeof parsed === "object") {
-            return getCaseStatusRecords(parsed);
-          }
-          return extractCaseStatusObjects(trimmed);
-        }
-
-        if (Array.isArray(data)) {
-          return data;
-        }
-
-        if (typeof data?.con === "string") {
-          const trimmed = data.con.trim();
-          const parsed = tryParseCaseStatusJson(trimmed);
-          if (Array.isArray(parsed)) {
-            return parsed;
-          }
-          if (parsed && typeof parsed === "object") {
-            return getCaseStatusRecords(parsed);
-          }
-          return extractCaseStatusObjects(trimmed);
-        }
-
-        if (Array.isArray(data?.records)) {
-          return data.records;
-        }
-
-        return [];
-      }
-
-      function getCaseStatusAdvocates(entry) {
-        return [entry.adv_name1, entry.adv_name2, entry.ladv_name1, entry.ladv_name2]
-          .map((item) => normalizeCaseStatusText(item, ""))
-          .filter(Boolean)
-          .join(", ") || "-";
-      }
-
-      function getCaseStatusParties(entry) {
-        return {
-          petitioner: normalizeCaseStatusText(entry.pet_name || entry.lpet_name),
-          respondent: normalizeCaseStatusText(entry.res_name || entry.lres_name)
-        };
-      }
-
-      function getCaseStatusDecision(entry) {
-        const decisionDate = normalizeCaseStatusText(entry.date_of_decision, "");
-        if (decisionDate) {
-          return {
-            status: "Disposed",
-            badgeClass: "disposed",
-            decisionText: decisionDate
-          };
-        }
-
-        return {
-          status: "Pending",
-          badgeClass: "pending",
-          decisionText: "Awaiting disposal"
-        };
-      }
-
-      function getCaseStatusDisplayModel(data) {
-        if (data && typeof data === "object" && data.view && Array.isArray(data.records)) {
-          return data;
-        }
-
-        if (data && typeof data === "object" && data.view === "message" && data.raw) {
-          const retried = getCaseStatusDisplayModel(data.raw);
-          if (retried.view !== "message") {
-            return retried;
-          }
-        }
-
-        if (data && typeof data === "object" && "con" in data) {
-          const wrapped = getCaseStatusDisplayModel(data.con);
-          if (wrapped.view !== "message") {
-            return wrapped;
-          }
-          if (data.con === "Invalid Captcha") {
-            return wrapped;
-          }
-        }
-
-        const records = getCaseStatusRecords(data);
-        if (records.length) {
-          const mapped = records.map((entry, index) => {
-            const decision = getCaseStatusDecision(entry);
-            const parties = getCaseStatusParties(entry);
-            return {
-              resultNumber: index + 1,
-              caseTypeName: normalizeCaseStatusText(entry.type_name),
-              caseNumber: `${normalizeCaseStatusText(entry.case_no2)}/${normalizeCaseStatusText(entry.case_year)}`,
-              fullCaseNumber: normalizeCaseStatusText(entry.case_no),
-              petitioner: parties.petitioner,
-              respondent: parties.respondent,
-              advocate: getCaseStatusAdvocates(entry),
-              cino: normalizeCaseStatusText(entry.cino),
-              status: decision.status,
-              decisionDate: decision.status === "Disposed" ? decision.decisionText : null
-            };
-          });
-
-          const summary = mapped.reduce((accumulator, record) => {
-            if (record.status === "Disposed") {
-              accumulator.disposedCount += 1;
-            } else {
-              accumulator.pendingCount += 1;
-            }
-            return accumulator;
-          }, { pendingCount: 0, disposedCount: 0 });
-
-          return {
-            view: "records",
-            totalRecords: mapped.length,
-            pendingCount: summary.pendingCount,
-            disposedCount: summary.disposedCount,
-            records: mapped,
-            html: null,
-            message: null,
-            raw: data
-          };
-        }
-
-        if (data?.con === "Invalid Captcha") {
-          return {
-            view: "message",
-            totalRecords: 0,
-            pendingCount: 0,
-            disposedCount: 0,
-            records: [],
-            html: null,
-            message: "The captcha did not match this session. Load a fresh captcha and try again.",
-            raw: data
-          };
-        }
-
-        if (typeof data?.con === "string" && data.con.trim().startsWith("<")) {
-          return {
-            view: "html",
-            totalRecords: Number(data.totRecords || 0),
-            pendingCount: 0,
-            disposedCount: 0,
-            records: [],
-            html: data.con,
-            message: null,
-            raw: data
-          };
-        }
-
-        return {
-          view: "message",
-          totalRecords: Number(data?.totRecords || 0),
-          pendingCount: 0,
-          disposedCount: 0,
-          records: [],
-          html: null,
-          message: data?.message || "No structured case-status records were found in this response.",
-          raw: data
-        };
-      }
-
-      function summarizeCaseStatusRecords(records) {
-        return records.reduce((summary, entry) => {
-          const decision = getCaseStatusDecision(entry);
-          if (decision.status === "Disposed") {
-            summary.disposed += 1;
-          } else {
-            summary.pending += 1;
-          }
-          return summary;
-        }, { pending: 0, disposed: 0 });
-      }
-
-      function caseStatusSortValue(entry) {
-        const year = Number(entry.case_year || 0);
-        const caseNo = Number(entry.case_no2 || 0);
-        return (year * 1000000) + caseNo;
-      }
-
-      function renderCaseStatusTable(records, emptyMessage) {
-        if (!records.length) {
-          return `<div class="result-block">${escapeHtml(emptyMessage)}</div>`;
-        }
-
-        const rows = records.map((entry, index) => {
-          const caseTitle = `${normalizeCaseStatusText(entry.type_name)} ${normalizeCaseStatusText(entry.case_no2, "-")}/${normalizeCaseStatusText(entry.case_year, "-")}`;
-          const parties = getCaseStatusParties(entry);
-          const advocates = getCaseStatusAdvocates(entry);
-          const decision = getCaseStatusDecision(entry);
-
-          return `
-            <div class="case-row">
-              <div class="kv">Result No: ${escapeHtml(index + 1)}</div>
-              <strong>${escapeHtml(caseTitle)}</strong>
-              <div>${escapeHtml(parties.petitioner)}</div>
-              <div class="kv">Respondent: ${escapeHtml(parties.respondent)}</div>
-              <div class="kv">Advocate: ${escapeHtml(advocates)}</div>
-              <div class="kv">Case Type: ${escapeHtml(normalizeCaseStatusText(entry.type_name))}</div>
-              <div class="kv">Full Case No: ${escapeHtml(normalizeCaseStatusText(entry.case_no))}</div>
-              <div class="kv">CINO: ${escapeHtml(normalizeCaseStatusText(entry.cino))}</div>
-              <div class="kv">Status: <span class="badge ${escapeHtml(decision.badgeClass)}">${escapeHtml(decision.status)}</span></div>
-              <div class="kv">Decision Date: ${escapeHtml(decision.decisionText)}</div>
-            </div>
-          `;
-        }).join("");
-
-        return `
-          <div class="case-list">${rows}</div>
-        `;
-      }
-
-      function getSelectedCauseFilters() {
-        const side = causeSideSelect.value;
-        const listType = causeTypeSelectFilter.value;
-        return {
-          sides: side ? [side] : [],
-          listTypes: listType ? [listType] : []
-        };
-      }
-
-      function renderCauseListResults(data) {
-        const allMatches = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-        const blocks = (data.results || []).map((item) => `
-          <div class="result-block">
-            <h3>${escapeHtml(item.date)} | ${escapeHtml(sideLabel(item.side))} | ${escapeHtml(listTypeLabel(item.listType))}</h3>
-            <div class="kv">${escapeHtml(item.matchCount)} matched case(s) | Last synced ${escapeHtml(new Date(item.fetchedAt).toLocaleString())}</div>
-            <div class="case-list">
-              ${(item.matches || []).slice(0, 20).map((entry) => `
-                <div class="case-row">
-                  <div class="kv">Serial No: ${escapeHtml(entry.serial || "-")}</div>
-                  <strong>${escapeHtml(entry.primaryCaseNumber || entry.caseNumbers?.[0] || "Case")}</strong>
-                  <div>${escapeHtml(entry.parties || "")}</div>
-                  <div class="kv">Advocate: ${escapeHtml(entry.advocates || "-")}</div>
-                  <div class="kv">Section: ${escapeHtml(entry.section || "-")}</div>
-                  <div class="kv">Court: ${escapeHtml(entry.courtNo || "-")}</div>
-                  <div class="kv">Bench: ${escapeHtml(entry.bench || "-")}</div>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        `).join("");
-
-        return `
-          <div class="summary-grid">
-            <div class="summary-card">Search<strong>${escapeHtml(data.query)}</strong></div>
-            <div class="summary-card">Lists With Matches<strong>${escapeHtml(data.totalListsWithMatches || 0)}</strong></div>
-            <div class="summary-card">Matched Cases<strong>${escapeHtml(allMatches)}</strong></div>
-            <div class="summary-card">Range<strong>${escapeHtml(data.startDate)} to ${escapeHtml(data.endDate || data.startDate)}</strong></div>
-          </div>
-          <div class="result-block">
-            <div class="kv">Sides: ${escapeHtml((data.sides || []).map(sideLabel).join(", ") || "All")}</div>
-            <div class="kv">Types: ${escapeHtml((data.listTypes || []).map(listTypeLabel).join(", ") || "All")}</div>
-            ${
-              data.cacheInfo?.autoSynced
-                ? `<div class="kv">Auto-sync: ${escapeHtml(data.cacheInfo.syncResult?.message || "Completed")}</div>`
-                : `<div class="kv">Auto-sync: not needed, cache already contained data for this range.</div>`
-            }
-          </div>
-          ${blocks || `<div class="result-block">No cached cause-list matches found for this search range.</div>`}
-        `;
-      }
-
-      function renderCaseStatusResults(data) {
-        const records = getCaseStatusRecords(data);
-        if (records.length) {
-          const summary = summarizeCaseStatusRecords(records);
-          const pendingRecords = records
-            .filter((entry) => getCaseStatusDecision(entry).status === "Pending")
-            .sort((a, b) => caseStatusSortValue(b) - caseStatusSortValue(a));
-          const disposedRecords = records
-            .filter((entry) => getCaseStatusDecision(entry).status === "Disposed")
-            .sort((a, b) => String(b.date_of_decision || "").localeCompare(String(a.date_of_decision || "")));
-          const caseTypes = [...new Set(records.map((entry) => normalizeCaseStatusText(entry.type_name)))].filter(Boolean);
-
-          return `
-            <div class="summary-grid">
-              <div class="summary-card">Total Matters<strong>${escapeHtml(records.length)}</strong></div>
-              <div class="summary-card">Pending Matters<strong>${escapeHtml(summary.pending)}</strong></div>
-              <div class="summary-card">Disposed Matters<strong>${escapeHtml(summary.disposed)}</strong></div>
-              <div class="summary-card">Case Types<strong>${escapeHtml(caseTypes.length)}</strong></div>
-            </div>
-            <div class="result-block">
-              <div class="kv">Readable case-status list generated from the live court response for ${escapeHtml(getCaseStatusAdvocates(records[0]))}.</div>
-              <div class="kv">Types found: ${escapeHtml(caseTypes.join(", "))}</div>
-            </div>
-            <div class="result-block">
-              <h3>Pending Matters</h3>
-              <div class="kv">These are the matters where no disposal date was returned by the court service.</div>
-            </div>
-            ${renderCaseStatusTable(pendingRecords, "No pending matters were returned in this result set.")}
-            <div class="result-block">
-              <h3>Disposed Matters</h3>
-              <div class="kv">These are the matters that already have a decision date.</div>
-            </div>
-            ${renderCaseStatusTable(disposedRecords, "No disposed matters were returned in this result set.")}
-          `;
-        }
-
-        if (data?.con === "Invalid Captcha") {
-          return `<div class="result-block">The captcha did not match this session. Load or refresh the captcha and try again.</div>`;
-        }
-
-        if (typeof data?.con === "string" && data.con.trim().startsWith("<")) {
-          return `
-            <div class="summary-grid">
-              <div class="summary-card">Total Records<strong>${escapeHtml(data.totRecords || 0)}</strong></div>
-            </div>
-            <div class="html-result">${data.con}</div>
-          `;
-        }
-
-        return `
-          <div class="summary-grid">
-            <div class="summary-card">Total Records<strong>${escapeHtml(data?.totRecords || 0)}</strong></div>
-            <div class="summary-card">Status<strong>${escapeHtml(data?.con || "Completed")}</strong></div>
-          </div>
-          <div class="result-block">This case-status response does not include a table view, so the raw JSON is kept below for reference.</div>
-        `;
-      }
-
-      function renderReadableResults(kind, payload) {
-        if (!payload) {
-          resultsViewEl.innerHTML = emptyCollection("No result loaded yet.");
-          return;
-        }
-
-        if (kind === "causeList") {
-          resultsViewEl.innerHTML = renderCauseListResults(payload);
-          return;
-        }
-
-        if (kind === "caseStatus") {
-          resultsViewEl.innerHTML = renderCaseStatusResults(payload);
-          return;
-        }
-
-        resultsViewEl.innerHTML = `<div class="empty-state">Result loaded. See raw JSON below for details.</div>`;
-      }
-
-      function emptyResultMessageForPanel(panelId) {
-        if (panelId === "caseStatusPanel") {
-          return "Run a case-status search to see readable pending and disposed matters here.";
-        }
-        if (panelId === "savedSearchesPanel") {
-          return "Open or rerun a saved search to load its latest result here.";
-        }
-        if (panelId === "savedDataPanel") {
-          return "Open a saved snapshot to load the stored result here.";
-        }
-        return "Use the forms on the left to search, save, or reopen a stored snapshot.";
-      }
-
-      function clearOutput(panelId = null) {
-        state.lastSearchPayload = null;
-        state.lastSearchKind = null;
-        resultMode.textContent = "No search run yet";
-        resultMode.className = "pill";
-        resultMetaEl.textContent = "Waiting for your first search.";
-        resultsViewEl.innerHTML = emptyCollection(emptyResultMessageForPanel(panelId));
-        resultsEl.textContent = "Use the forms on the left to search or save data.";
-      }
-
-      function setOutput(label, payload, kind = null) {
-        resultMode.textContent = label;
-        resultMode.className = `pill${kind === "causeList" ? " accent" : kind === "caseStatus" ? " blue" : ""}`;
-        resultsEl.textContent = JSON.stringify(payload, null, 2);
-        state.lastSearchPayload = payload;
-        state.lastSearchKind = kind;
-        updateResultMeta(kind, payload);
-        renderReadableResults(kind, payload);
-      }
-
-      function summarizeLatestRun(latestRun) {
-        if (!latestRun) {
-          return "No saved result yet.";
-        }
-
-        const data = latestRun.resultJson;
-        if (latestRun.sourceType.startsWith("cause_list")) {
-          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-          return `${data.totalListsWithMatches || 0} list(s), ${matchedCases} matched case(s), saved ${new Date(latestRun.createdAt).toLocaleString()}`;
-        }
-
-        if (Array.isArray(data)) {
-          const summary = summarizeCaseStatusRecords(data);
-          return `${data.length} matter(s), ${summary.pending} pending, ${summary.disposed} disposed, saved ${new Date(latestRun.createdAt).toLocaleString()}`;
-        }
-
-        if (data?.con === "Invalid Captcha") {
-          return `Last run saved an invalid captcha response on ${new Date(latestRun.createdAt).toLocaleString()}`;
-        }
-
-        if (data?.totRecords != null) {
-          return `${data.totRecords} record(s), saved ${new Date(latestRun.createdAt).toLocaleString()}`;
-        }
-
-        return `Saved ${new Date(latestRun.createdAt).toLocaleString()}`;
-      }
-
-      function summarizeSavedData(latestRun) {
-        if (!latestRun) {
-          return "No saved data yet.";
-        }
-
-        const data = latestRun.resultJson;
-        if (latestRun.sourceType.startsWith("cause_list")) {
-          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-          return `
-            <div class="saved-meta">Cause-list snapshot</div>
-            <div class="saved-meta">${escapeHtml(data.query || "")}</div>
-            <div class="saved-meta">${escapeHtml(data.totalListsWithMatches || 0)} list(s), ${escapeHtml(matchedCases)} matched case(s)</div>
-            <div class="saved-meta">${escapeHtml(data.startDate || "-")} to ${escapeHtml(data.endDate || "-")}</div>
-            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-          `;
-        }
-
-        if (Array.isArray(data)) {
-          const summary = summarizeCaseStatusRecords(data);
-          return `
-            <div class="saved-meta">Case-status snapshot</div>
-            <div class="saved-meta">${escapeHtml(data.length)} matter(s)</div>
-            <div class="saved-meta">Pending: ${escapeHtml(summary.pending)} | Disposed: ${escapeHtml(summary.disposed)}</div>
-            <div class="saved-meta">Advocate: ${escapeHtml(getCaseStatusAdvocates(data[0]))}</div>
-            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-          `;
-        }
-
-        if (data?.con === "Invalid Captcha") {
-          return `
-            <div class="saved-meta">Case-status snapshot</div>
-            <div class="saved-meta">Invalid captcha response was saved.</div>
-            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-          `;
-        }
-
-        return `
-          <div class="saved-meta">Case-status snapshot</div>
-          <div class="saved-meta">${escapeHtml(data?.totRecords ?? 0)} record(s)</div>
-          <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-        `;
-      }
-
-      function isCauseSearch(item) {
-        return item.searchType === "cause_list_text";
-      }
-
-      function isCauseSnapshot(item) {
-        return item.latestRun?.sourceType?.startsWith("cause_list");
-      }
-
-      function renderSavedSearchCard(item) {
-        return `
-          <div class="saved-item">
-            <div class="section-title">
-              <strong>${escapeHtml(item.label)}</strong>
-              <span class="pill ${isCauseSearch(item) ? "accent" : "blue"}">${escapeHtml(isCauseSearch(item) ? "Cause List" : "Case Status")}</span>
-            </div>
-            <div class="saved-meta">${escapeHtml(item.queryText || "")} ${item.caseNumber ? `Case ${item.caseNumber}/${item.year}` : ""}</div>
-            ${item.filtersJson?.listTypes ? `<div class="saved-meta">Types: ${item.filtersJson.listTypes.map(listTypeLabel).join(", ")}</div>` : ""}
-            ${item.filtersJson?.sides ? `<div class="saved-meta">Sides: ${item.filtersJson.sides.map(sideLabel).join(", ")}</div>` : ""}
-            ${item.courtCode ? `<div class="saved-meta">Bench Code: ${escapeHtml(item.courtCode)}</div>` : ""}
-            <div class="saved-meta">Updated: ${new Date(item.updatedAt).toLocaleString()}</div>
-            <div class="saved-meta">${summarizeLatestRun(item.latestRun)}</div>
-            <div class="saved-actions">
-              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Run</button>
-              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">View Latest</button>
-              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
-            </div>
-          </div>
-        `;
-      }
-
-      function updateSavedSearchGroup(type) {
-        if (type === "caseStatus") {
-          savedSearchGroupTitleEl.textContent = "Case Status Searches";
-          savedSearchGroupNoteEl.textContent = "Saved party, advocate, and case-number checks.";
-          return;
-        }
-
-        savedSearchGroupTitleEl.textContent = "Cause List Searches";
-        savedSearchGroupNoteEl.textContent = "Saved lawyer, party, and case-text searches for upcoming lists.";
-      }
-
-      function updateSavedDataGroup(type) {
-        if (type === "caseStatus") {
-          savedDataGroupTitleEl.textContent = "Case Status Results";
-          savedDataGroupNoteEl.textContent = "Latest stored case-status snapshots.";
-          return;
-        }
-
-        savedDataGroupTitleEl.textContent = "Cause List Results";
-        savedDataGroupNoteEl.textContent = "Latest stored cause-list match snapshots.";
-      }
-
-      function renderSavedDataCard(item) {
-        return `
-          <div class="saved-item">
-            <div class="section-title">
-              <strong>${escapeHtml(item.label)}</strong>
-              <span class="pill ${isCauseSnapshot(item) ? "accent" : "blue"}">${escapeHtml(isCauseSnapshot(item) ? "Cause List Result" : "Case Status Result")}</span>
-            </div>
-            ${summarizeSavedData(item.latestRun)}
-            <div class="saved-actions">
-              <button class="ghost" onclick="window.__viewLatestSavedRun(${item.id})">Open Snapshot</button>
-              <button onclick="window.__rerunSavedSearch(${item.id}, '${item.searchType}')">Refresh Data</button>
-              <button class="ghost" onclick="window.__deleteSavedSearch(${item.id})">Delete</button>
-            </div>
-          </div>
-        `;
-      }
-
-      function updateResultMeta(kind, payload) {
-        const timestamp = nowLabel();
-        if (!kind || !payload) {
-          resultMetaEl.textContent = "Waiting for your first search.";
-          return;
-        }
-
-        if (kind === "causeList") {
-          const matchedCases = (payload.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-          resultMetaEl.textContent = `Updated ${timestamp} • ${payload.totalListsWithMatches || 0} list(s) • ${matchedCases} matched case(s)`;
-          return;
-        }
-
-        if (kind === "caseStatus") {
-          const display = getCaseStatusDisplayModel(payload);
-          resultMetaEl.textContent = `Updated ${timestamp} • ${display.totalRecords || 0} matter(s)`;
-          return;
-        }
-
-        resultMetaEl.textContent = `Updated ${timestamp}`;
-      }
-
-      function renderCaseStatusTable(records, emptyMessage) {
-        if (!records.length) {
-          return `<div class="result-block">${escapeHtml(emptyMessage)}</div>`;
-        }
-
-        const rows = records.map((entry, index) => {
-          const decisionText = entry.decisionDate || "Awaiting disposal";
-          const badgeClass = entry.status === "Disposed" ? "disposed" : "pending";
-
-          return `
-            <div class="case-row">
-              <div class="kv">Result No: ${escapeHtml(entry.resultNumber || index + 1)}</div>
-              <strong>${escapeHtml(`${entry.caseTypeName || "-"} ${entry.caseNumber || "-"}`)}</strong>
-              <div>${escapeHtml(entry.petitioner || "-")}</div>
-              <div class="kv">Respondent: ${escapeHtml(entry.respondent || "-")}</div>
-              <div class="kv">Advocate: ${escapeHtml(entry.advocate || "-")}</div>
-              <div class="kv">Case Type: ${escapeHtml(entry.caseTypeName || "-")}</div>
-              <div class="kv">Full Case No: ${escapeHtml(entry.fullCaseNumber || "-")}</div>
-              <div class="kv">CINO: ${escapeHtml(entry.cino || "-")}</div>
-              <div class="kv">Status: <span class="badge ${escapeHtml(badgeClass)}">${escapeHtml(entry.status || "Pending")}</span></div>
-              <div class="kv">Decision Date: ${escapeHtml(decisionText)}</div>
-            </div>
-          `;
-        }).join("");
-
-        return `<div class="case-list">${rows}</div>`;
-      }
-
-      function renderCaseStatusResults(data) {
-        const display = getCaseStatusDisplayModel(data);
-
-        if (display.view === "records" && display.records.length) {
-          const pendingRecords = display.records
-            .filter((entry) => entry.status === "Pending")
-            .sort((a, b) => String(b.caseNumber || "").localeCompare(String(a.caseNumber || "")));
-          const disposedRecords = display.records
-            .filter((entry) => entry.status === "Disposed")
-            .sort((a, b) => String(b.decisionDate || "").localeCompare(String(a.decisionDate || "")));
-          const caseTypes = [...new Set(display.records.map((entry) => entry.caseTypeName).filter(Boolean))];
-          const firstAdvocate = display.records[0]?.advocate || "-";
-
-          return `
-            <div class="summary-grid">
-              <div class="summary-card">Total Matters<strong>${escapeHtml(display.totalRecords)}</strong></div>
-              <div class="summary-card">Pending Matters<strong>${escapeHtml(display.pendingCount)}</strong></div>
-              <div class="summary-card">Disposed Matters<strong>${escapeHtml(display.disposedCount)}</strong></div>
-              <div class="summary-card">Case Types<strong>${escapeHtml(caseTypes.length)}</strong></div>
-            </div>
-            <div class="result-block">
-              <div class="kv">Readable case-status list generated from the live court response for ${escapeHtml(firstAdvocate)}.</div>
-              <div class="kv">Types found: ${escapeHtml(caseTypes.join(", "))}</div>
-            </div>
-            <div class="result-block">
-              <h3>Pending Matters</h3>
-              <div class="kv">These are the matters where no disposal date was returned by the court service.</div>
-            </div>
-            ${renderCaseStatusTable(pendingRecords, "No pending matters were returned in this result set.")}
-            <div class="result-block">
-              <h3>Disposed Matters</h3>
-              <div class="kv">These are the matters that already have a decision date.</div>
-            </div>
-            ${renderCaseStatusTable(disposedRecords, "No disposed matters were returned in this result set.")}
-          `;
-        }
-
-        if (display.view === "html" && display.html) {
-          return `
-            <div class="summary-grid">
-              <div class="summary-card">Total Records<strong>${escapeHtml(display.totalRecords)}</strong></div>
-            </div>
-            <div class="html-result">${display.html}</div>
-          `;
-        }
-
-        return `<div class="result-block">${escapeHtml(display.message || "No structured case-status records were found in this response.")}</div>`;
-      }
-
-      function summarizeSavedData(latestRun) {
-        if (!latestRun) {
-          return "No saved data yet.";
-        }
-
-        const data = latestRun.resultJson;
-        if (latestRun.sourceType.startsWith("cause_list")) {
-          const matchedCases = (data.results || []).reduce((sum, item) => sum + (item.matchCount || 0), 0);
-          return `
-            <div class="saved-meta">Cause-list snapshot</div>
-            <div class="saved-meta">${escapeHtml(data.query || "")}</div>
-            <div class="saved-meta">${escapeHtml(data.totalListsWithMatches || 0)} list(s), ${escapeHtml(matchedCases)} matched case(s)</div>
-            <div class="saved-meta">${escapeHtml(data.startDate || "-")} to ${escapeHtml(data.endDate || "-")}</div>
-            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-          `;
-        }
-
-        const display = getCaseStatusDisplayModel(data);
-        if (display.view === "records") {
-          return `
-            <div class="saved-meta">Case-status snapshot</div>
-            <div class="saved-meta">${escapeHtml(display.totalRecords)} matter(s)</div>
-            <div class="saved-meta">Pending: ${escapeHtml(display.pendingCount)} | Disposed: ${escapeHtml(display.disposedCount)}</div>
-            <div class="saved-meta">Advocate: ${escapeHtml(display.records[0]?.advocate || "-")}</div>
-            <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-          `;
-        }
-
-        return `
-          <div class="saved-meta">Case-status snapshot</div>
-          <div class="saved-meta">${escapeHtml(display.message || "No structured case-status records found.")}</div>
-          <div class="saved-meta">Saved: ${escapeHtml(new Date(latestRun.createdAt).toLocaleString())}</div>
-        `;
-      }
-
-      async function api(url, options = {}) {
-        const response = await fetch(url, options);
-        const text = await response.text();
-        const data = text ? JSON.parse(text) : null;
-        if (!response.ok) {
-          throw new Error(data?.error || "Request failed");
-        }
-        return data;
-      }
-
-      function setActivePanel(panelId) {
-        tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === panelId));
-        panels.forEach((panel) => panel.classList.toggle("active", panel.id === panelId));
-        clearOutput(panelId);
-      }
-
-      function setCaseMode(mode) {
-        state.currentCaseMode = mode;
-        modeTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.mode === mode));
-        document.getElementById("partyFields").style.display = mode === "party" ? "grid" : "none";
-        document.getElementById("advocateFields").style.display = mode === "advocate" ? "grid" : "none";
-        document.getElementById("caseNumberFields").style.display = mode === "caseNumber" ? "grid" : "none";
-      }
-
-      function getSelectedBench() {
-        const courtCode = benchSelect.value || "";
-        const selected = state.benches.find((item) => item.value === courtCode) || null;
-        return {
-          courtCode,
-          benchLabel: selected?.label || "Unknown Bench"
-        };
-      }
-
-      async function loadBenches() {
-        const data = await api("/api/case-status/benches");
-        state.benches = data.benches.filter((item) => item.value !== "0");
-        if (!state.benches.length) {
-          benchSelect.innerHTML = `<option value="">No benches available</option>`;
-          throw new Error("No benches were returned by the eCourts service.");
-        }
-
-        benchSelect.innerHTML = [
-          `<option value="">Select bench</option>`,
-          ...state.benches.map((item) => `<option value="${item.value}">${item.label}</option>`)
-        ].join("");
-        benchSelect.value = state.benches[0].value;
-        await loadCaseTypes();
-      }
-
-      async function loadCaseTypes() {
-        const { courtCode, benchLabel } = getSelectedBench();
-        if (!courtCode) return;
-        try {
-          const data = await api(`/api/case-status/case-types?courtCode=${encodeURIComponent(courtCode)}`);
-          state.caseTypes = data.caseTypes.filter((item) => item.value !== "0");
-          if (!state.caseTypes.length) {
-            caseTypeSelect.innerHTML = `<option value="">No case types found for ${benchLabel}</option>`;
-            return;
-          }
-          caseTypeSelect.innerHTML = state.caseTypes
-            .map((item) => `<option value="${item.value}">${item.label}</option>`)
-            .join("");
-          caseTypeSelect.value = state.caseTypes[0].value;
-        } catch (error) {
-          state.caseTypes = [];
-          caseTypeSelect.innerHTML = `<option value="">Case types unavailable</option>`;
-          caseStatusStatus.textContent = error.message;
-        }
-      }
-
-      async function loadCaptchaSession() {
-        caseStatusStatus.textContent = "Loading captcha session...";
-        const data = await api("/api/case-status/session", { method: "POST" });
-        state.sessionId = data.sessionId;
-        captchaPreview.innerHTML = `<img src="${data.captchaImageUrl}?t=${Date.now()}" alt="captcha" style="width:100%;height:auto;">`;
-        caseStatusStatus.textContent = "Captcha loaded. Enter it and run your search.";
-      }
-
-      function refreshCaptchaImage() {
-        if (!state.sessionId) {
-          caseStatusStatus.textContent = "Load a captcha session first.";
-          return;
-        }
-        captchaPreview.innerHTML = `<img src="/api/case-status/session/${state.sessionId}/captcha?t=${Date.now()}" alt="captcha" style="width:100%;height:auto;">`;
-        caseStatusStatus.textContent = "Captcha image refreshed for the current session.";
-      }
-
-      async function searchCauseLists() {
-        causeStatus.textContent = "Searching synced cause lists...";
-        const query = causeQuery.value.trim();
-        const startDate = causeStartDate.value;
-        const days = causeDays.value;
-        const filters = getSelectedCauseFilters();
-        const data = await api(
-          `/api/cause-lists/cache/search?query=${encodeURIComponent(query)}&startDate=${encodeURIComponent(startDate)}&days=${encodeURIComponent(days)}&sides=${encodeURIComponent(filters.sides.join(","))}&listTypes=${encodeURIComponent(filters.listTypes.join(","))}`
-        );
-        if (data.cacheInfo?.autoSynced) {
-          if (data.cacheInfo.syncResult?.status === "ok") {
-            causeStatus.textContent = `Auto-sync succeeded. Found ${data.totalListsWithMatches} synced cause-list file(s) with matches.`;
-          } else {
-            causeStatus.textContent = data.cacheInfo.syncResult?.message || "Auto-sync did not find usable files.";
-          }
-        } else {
-          causeStatus.textContent = `Found ${data.totalListsWithMatches} synced cause-list file(s) with matches.`;
-        }
-        setOutput("Synced Cause Lists", data, "causeList");
-        return data;
-      }
-
-      async function refreshSyncStatus() {
-        const data = await api("/api/cause-lists/sync/status");
-        const status = data.status;
-        syncStatusNote.textContent = status?.last_message
-          ? `${status.last_status === "ok" ? "Sync success." : "Sync warning."} ${status.last_message} Last run: ${new Date(status.last_run_at).toLocaleString()}`
-          : "No sync has run yet.";
-      }
-
-      async function runCauseListSync() {
-        syncStatusNote.textContent = "Syncing cause lists from the official website...";
-        const data = await api("/api/cause-lists/sync/run", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            startDate: causeStartDate.value,
-            days: Math.min(Number(causeDays.value || 7), 7),
-            ...getSelectedCauseFilters()
-          })
-        });
-        syncStatusNote.textContent = data.status === "ok"
-          ? `Sync success. ${data.message}`
-          : `Sync warning. ${data.message}${data.sampleErrors?.length ? ` Sample: ${data.sampleErrors[0]}` : ""}`;
-        await refreshSyncStatus();
-      }
-
-      async function saveCauseSearch() {
-        const currentResult =
-          state.lastSearchKind === "causeList" && state.lastSearchPayload && state.lastSearchPayload.query === causeQuery.value.trim()
-            ? state.lastSearchPayload
-            : await searchCauseLists();
-
-        const body = {
-          label: causeLabel.value.trim() || `Track ${causeQuery.value.trim()}`,
-          searchType: "cause_list_text",
-          queryText: causeQuery.value.trim(),
-          filtersJson: getSelectedCauseFilters(),
-          notes: causeNotes.value.trim() || null,
-          initialRun: {
-            sourceType: "cause_list_cache_search",
-            resultJson: currentResult
-          }
-        };
-        const data = await api("/api/saved-searches", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        causeStatus.textContent = `Saved search #${data.id} with current matched cases snapshot.`;
-        await loadSavedSearches();
-      }
-
-      async function runCaseStatusSearch() {
-        if (!state.sessionId) {
-          throw new Error("Load a captcha session first.");
-        }
-        const { courtCode, benchLabel } = getSelectedBench();
-        if (!courtCode) {
-          throw new Error("Select a bench first.");
-        }
-        const captcha = captchaInput.value.trim();
-        const filter = statusFilter.value;
-        let data;
-
-        caseStatusStatus.textContent = `Running case-status search for ${benchLabel}...`;
-
-        if (state.currentCaseMode === "party") {
-          data = await api("/api/case-status/search/party-name", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: state.sessionId,
-              captcha,
-              courtCode,
-              partyName: partyName.value.trim(),
-              year: partyYear.value.trim(),
-              statusFilter: filter
-            })
-          });
-        } else if (state.currentCaseMode === "advocate") {
-          data = await api("/api/case-status/search/advocate-name", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: state.sessionId,
-              captcha,
-              courtCode,
-              advocateName: advocateName.value.trim(),
-              statusFilter: filter
-            })
-          });
-        } else {
-          data = await api("/api/case-status/search/case-number", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: state.sessionId,
-              captcha,
-              courtCode,
-              caseType: caseTypeSelect.value,
-              caseNumber: caseNumberInput.value.trim(),
-              year: caseYearInput.value.trim()
-            })
-          });
-        }
-
-        caseStatusStatus.textContent = "Search completed.";
-        setOutput("Case Status", data, "caseStatus");
-        return data;
-      }
-
-      async function saveCaseStatusSearch() {
-        const { courtCode, benchLabel } = getSelectedBench();
-        if (!courtCode) {
-          throw new Error("Select a bench first.");
-        }
-        let body;
-
-        if (state.currentCaseMode === "party") {
-          body = {
-            label: `Party: ${partyName.value.trim()} (${benchLabel})`,
-            searchType: "case_status_party",
-            queryText: partyName.value.trim(),
-            courtCode,
-            statusFilter: statusFilter.value,
-            year: partyYear.value.trim(),
-            notes: "Saved from dashboard"
-          };
-        } else if (state.currentCaseMode === "advocate") {
-          body = {
-            label: advocateLabel.value.trim() || `Advocate: ${advocateName.value.trim()} (${benchLabel})`,
-            searchType: "case_status_advocate",
-            queryText: advocateName.value.trim(),
-            courtCode,
-            statusFilter: statusFilter.value,
-            notes: "Saved from dashboard"
-          };
-        } else {
-          body = {
-            label: `Case: ${caseNumberInput.value.trim()}/${caseYearInput.value.trim()} (${benchLabel})`,
-            searchType: "case_status_case_number",
-            courtCode,
-            caseType: caseTypeSelect.value,
-            caseNumber: caseNumberInput.value.trim(),
-            year: caseYearInput.value.trim(),
-            notes: "Saved from dashboard"
-          };
-        }
-
-        const currentResult = state.lastSearchKind === "caseStatus" ? state.lastSearchPayload : await runCaseStatusSearch();
-        const data = await api("/api/saved-searches", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...body,
-            initialRun: {
-              sourceType: body.searchType,
-              resultJson: currentResult
-            }
-          })
-        });
-        caseStatusStatus.textContent = `Saved search #${data.id} with the current result snapshot.`;
-        await loadSavedSearches();
-      }
-
-      async function rerunSavedSearch(id, type) {
-        if (type === "cause_list_text") {
-          const data = await api(`/api/saved-searches/${id}/run`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({})
-          });
-          setOutput("Saved Search Rerun", data, "causeList");
-          return;
-        }
-
-        if (!state.sessionId) {
-          await loadCaptchaSession();
-        }
-
-        const data = await api(`/api/saved-searches/${id}/run`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId: state.sessionId,
-            captcha: captchaInput.value.trim()
-          })
-        });
-        setOutput("Saved Search Rerun", data, "caseStatus");
-      }
-
-      async function viewLatestSavedRun(id) {
-        const data = await api(`/api/saved-searches/${id}/latest-run`);
-        if (!data.latestRun) {
-          setOutput("Saved Search", { message: "No saved result yet." });
-          return;
-        }
-
-        const kind = data.latestRun.sourceType.startsWith("cause_list") ? "causeList" : "caseStatus";
-        setOutput("Saved Snapshot", data.latestRun.resultJson, kind);
-      }
-
-      async function deleteSavedSearch(id) {
-        await api(`/api/saved-searches/${id}`, {
-          method: "DELETE"
-        });
-        await loadSavedSearches();
-      }
-
-      async function loadSavedSearches() {
-        const data = await api("/api/saved-searches");
-        const items = data.items || [];
-        const causeSearches = items.filter(isCauseSearch);
-        const caseStatusSearches = items.filter((item) => !isCauseSearch(item));
-        const itemsWithData = items.filter((item) => item.latestRun);
-        const causeSnapshots = itemsWithData.filter(isCauseSnapshot);
-        const caseStatusSnapshots = itemsWithData.filter((item) => !isCauseSnapshot(item));
-
-        if (savedSearchCountEl) {
-          savedSearchCountEl.textContent = String(items.length);
-        }
-        if (savedSnapshotCountEl) {
-          savedSnapshotCountEl.textContent = String(itemsWithData.length);
-        }
-        const selectedType = savedSearchTypeSelect.value || "cause";
-        updateSavedSearchGroup(selectedType);
-        const selectedItems = selectedType === "caseStatus" ? caseStatusSearches : causeSearches;
-        savedSearchesListEl.innerHTML = selectedItems.length
-          ? selectedItems.map(renderSavedSearchCard).join("")
-          : emptyCollection(selectedType === "caseStatus" ? "No case-status searches saved yet." : "No cause-list searches saved yet.");
-
-        const selectedDataType = (savedDataTypeSelect?.value || "cause");
-        updateSavedDataGroup(selectedDataType);
-        const selectedSnapshots = selectedDataType === "caseStatus" ? caseStatusSnapshots : causeSnapshots;
-        savedDataListEl.innerHTML = selectedSnapshots.length
-          ? selectedSnapshots.map(renderSavedDataCard).join("")
-          : emptyCollection(selectedDataType === "caseStatus" ? "No case-status snapshots saved yet." : "No cause-list snapshots saved yet.");
-      }
-
-      window.__rerunSavedSearch = async (id, type) => {
-        try {
-          await runAction({
-            startMessage: "Refreshing saved search results...",
-            doneMessage: "Saved search refreshed.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-              causeStatus.textContent = message;
-            }
-          }, () => rerunSavedSearch(id, type));
-        } catch {}
-      };
-
-      window.__viewLatestSavedRun = async (id) => {
-        try {
-          await runAction({
-            startMessage: "Opening saved snapshot...",
-            doneMessage: "Snapshot opened.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-              causeStatus.textContent = message;
-            }
-          }, () => viewLatestSavedRun(id));
-        } catch {}
-      };
-
-      window.__deleteSavedSearch = async (id) => {
-        try {
-          await runAction({
-            startMessage: "Deleting saved item...",
-            doneMessage: "Saved item deleted.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-              causeStatus.textContent = message;
-            }
-          }, () => deleteSavedSearch(id));
-        } catch {}
-      };
-
-      tabs.forEach((tab) => tab.addEventListener("click", () => setActivePanel(tab.dataset.tab)));
-      modeTabs.forEach((tab) => tab.addEventListener("click", () => setCaseMode(tab.dataset.mode)));
-      benchSelect.addEventListener("change", loadCaseTypes);
-      savedSearchTypeSelect.addEventListener("change", () => {
-        void loadSavedSearches();
-      });
-      savedDataTypeSelect.addEventListener("change", () => {
-        void loadSavedSearches();
-      });
-
-      loadCaptchaBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: loadCaptchaBtn,
-            busyLabel: "Loading Session",
-            startMessage: "Loading a fresh captcha session from the court service...",
-            doneMessage: "Captcha session loaded.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-            }
-          }, loadCaptchaSession);
-        } catch {}
-      });
-
-      refreshCaptchaBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: refreshCaptchaBtn,
-            busyLabel: "Refreshing",
-            startMessage: "Refreshing the captcha preview...",
-            doneMessage: "Captcha refreshed.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-            }
-          }, async () => {
-            refreshCaptchaImage();
-          });
-        } catch {}
-      });
-
-      causeSearchBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: causeSearchBtn,
-            busyLabel: "Searching",
-            startMessage: "Searching synced cause lists...",
-            doneMessage: "Cause-list search completed.",
-            onError: (message) => {
-              causeStatus.textContent = message;
-            }
-          }, searchCauseLists);
-        } catch {}
-      });
-
-      causeSaveBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: causeSaveBtn,
-            busyLabel: "Saving",
-            startMessage: "Saving this cause-list search and snapshot...",
-            doneMessage: "Cause-list search saved.",
-            onError: (message) => {
-              causeStatus.textContent = message;
-            }
-          }, saveCauseSearch);
-        } catch {}
-      });
-
-      syncCauseListsBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: syncCauseListsBtn,
-            busyLabel: "Syncing",
-            startMessage: "Syncing cause lists from the official website...",
-            doneMessage: "Cause-list sync finished.",
-            onError: (message) => {
-              syncStatusNote.textContent = message;
-            }
-          }, runCauseListSync);
-        } catch {}
-      });
-
-      caseStatusSearchBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: caseStatusSearchBtn,
-            busyLabel: "Searching",
-            startMessage: "Running the live case-status search...",
-            doneMessage: "Case-status search completed.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-            }
-          }, runCaseStatusSearch);
-        } catch {}
-      });
-
-      caseStatusSaveBtn.addEventListener("click", async () => {
-        try {
-          await runAction({
-            button: caseStatusSaveBtn,
-            busyLabel: "Saving",
-            startMessage: "Saving this case-status search and snapshot...",
-            doneMessage: "Case-status search saved.",
-            onError: (message) => {
-              caseStatusStatus.textContent = message;
-            }
-          }, saveCaseStatusSearch);
-        } catch {}
-      });
-
-      (async function init() {
-        setActivity("Loading dashboard...", true);
-        causeQuery.value = "UDAYNARAYAN";
-        causeLabel.value = "Track UDAYNARAYAN";
-        partyName.value = "UDAYNARAYAN";
-        advocateName.value = "UDAYNARAYAN BETAL";
-        advocateLabel.value = "Track UDAYNARAYAN BETAL";
-        partyYear.value = String(new Date().getFullYear());
-        setCaseMode("advocate");
-        try {
-          await loadBenches();
-        } catch (error) {
-          caseStatusStatus.textContent = error.message;
-        }
-        clearOutput("causeListPanel");
-        await loadSavedSearches();
-        await refreshSyncStatus();
-        setActivity("Ready", false);
-      })().catch((error) => {
-        resultMode.textContent = "Startup Error";
-        resultsEl.textContent = error.message;
-        resultMetaEl.textContent = "Startup failed.";
-        setActivity(error.message, false);
-      });
-    </script>
+    <script src="/app.js"></script>
   </body>
 </html>

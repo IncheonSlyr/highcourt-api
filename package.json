@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "typecheck": "tsc --noEmit",
-    "import:sqlite": "tsx scripts/import-sqlite.ts",
-    "import:http": "tsx scripts/push-import-http.ts"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

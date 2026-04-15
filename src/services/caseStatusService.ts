@@ -2,7 +2,6 @@ import * as cheerio from "cheerio";
 import { randomUUID } from "crypto";
 import { CookieJar } from "tough-cookie";
 import { config } from "../config";
-import { normalizeCaseStatusPayload } from "../lib/caseStatusParser";
 import { createCookieHttpClient, http } from "../lib/http";
 import type { CaseStatusSearchRequest, SearchStatusFilter } from "../types";
 
@@ -141,7 +140,7 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeCaseStatusPayload(response.data);
+    return response.data;
   }
 
   async searchByPartyName(input: {
@@ -176,7 +175,7 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeCaseStatusPayload(response.data);
+    return response.data;
   }
 
   async searchByAdvocateName(input: {
@@ -210,6 +209,6 @@ export class CaseStatusService {
       },
     );
 
-    return normalizeCaseStatusPayload(response.data);
+    return response.data;
   }
 }

@@ -502,8 +502,3 @@ export const syncStateDb = {
     return rows[0] ?? null;
   },
 };
-
-export async function resetAllData() {
-  const pool = getDbPool();
-  await pool.query("TRUNCATE TABLE sync_state, cause_list_snapshots, search_runs, saved_searches RESTART IDENTITY CASCADE");
-}

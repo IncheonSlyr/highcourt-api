@@ -36,6 +36,7 @@ export type CaseStatusDisplayRecord = {
   cino: string;
   status: "Pending" | "Disposed";
   decisionDate: string | null;
+  viewUrl: string | null;
 };
 
 export type CaseStatusDisplayResponse = {

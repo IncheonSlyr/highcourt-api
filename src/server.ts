@@ -2,8 +2,8 @@ import express from "express";
 import path from "node:path";
 import { z } from "zod";
 import { config } from "./config";
-import { causeListCacheDb, getDbPool, initDb, resetAllData, savedSearchDb } from "./db";
-import { buildCaseStatusDisplayResponse } from "./lib/caseStatusDisplay";
+import { causeListCacheDb, initDb, savedSearchDb } from "./db";
+import { buildCaseStatusResults } from "./lib/caseStatusResults";
 import { CauseListService } from "./services/causeListService";
 import { CauseListSyncService } from "./services/causeListSyncService";
 import { CaseStatusService } from "./services/caseStatusService";
@@ -214,7 +214,7 @@ app.post("/api/case-status/search/case-number", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByCaseNumber(body);
-    res.json(buildCaseStatusDisplayResponse(result));
+    res.json(buildCaseStatusResults(result));
   } catch (error) {
     next(error);
   }
@@ -234,7 +234,7 @@ app.post("/api/case-status/search/party-name", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByPartyName(body);
-    res.json(buildCaseStatusDisplayResponse(result));
+    res.json(buildCaseStatusResults(result));
   } catch (error) {
     next(error);
   }
@@ -253,7 +253,7 @@ app.post("/api/case-status/search/advocate-name", async (req, res, next) => {
       .parse(req.body);
 
     const result = await caseStatusService.searchByAdvocateName(body);
-    res.json(buildCaseStatusDisplayResponse(result));
+    res.json(buildCaseStatusResults(result));
   } catch (error) {
     next(error);
   }
@@ -410,7 +410,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         year: record.year,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      const displayResult = buildCaseStatusDisplayResponse(result);
+      const displayResult = buildCaseStatusResults(result);
       await savedSearchDb.addRun(id, "case_status_party", displayResult);
       res.json(displayResult);
       return;
@@ -435,7 +435,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         advocateName: record.queryText,
         statusFilter: (record.statusFilter as "Pending" | "Disposed" | "Both" | null) ?? "Both",
       });
-      const displayResult = buildCaseStatusDisplayResponse(result);
+      const displayResult = buildCaseStatusResults(result);
       await savedSearchDb.addRun(id, "case_status_advocate", displayResult);
       res.json(displayResult);
       return;
@@ -461,7 +461,7 @@ app.post("/api/saved-searches/:id/run", async (req, res, next) => {
         caseNumber: record.caseNumber,
         year: record.year,
       });
-      const displayResult = buildCaseStatusDisplayResponse(result);
+      const displayResult = buildCaseStatusResults(result);
       await savedSearchDb.addRun(id, "case_status_case_number", displayResult);
       res.json(displayResult);
       return;
@@ -483,165 +483,6 @@ app.get("/api/cron/cause-list-sync", async (req, res, next) => {
 
     const result = await causeListSyncService.runSync();
     res.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/admin/import", async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!config.cronSecret || authHeader !== `Bearer ${config.cronSecret}`) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    const body = z
-      .object({
-        mode: z.enum(["replace", "append"]).default("append"),
-        payload: z.object({
-          savedSearches: z.array(z.record(z.string(), z.unknown())).default([]),
-          searchRuns: z.array(z.record(z.string(), z.unknown())).default([]),
-          causeListSnapshots: z.array(z.record(z.string(), z.unknown())).default([]),
-          syncState: z.array(z.record(z.string(), z.unknown())).default([]),
-        }),
-      })
-      .parse(req.body ?? {});
-
-    if (body.mode === "replace") {
-      await resetAllData();
-    }
-
-    const pool = getDbPool();
-
-    for (const row of body.payload.savedSearches) {
-      await pool.query(
-        `
-        INSERT INTO saved_searches
-          (id, label, search_type, query_text, filters_json, court_code, status_filter, case_type, case_number, year, notes, created_at, updated_at, last_run_at)
-        VALUES
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-        ON CONFLICT (id)
-        DO UPDATE SET
-          label = EXCLUDED.label,
-          search_type = EXCLUDED.search_type,
-          query_text = EXCLUDED.query_text,
-          filters_json = EXCLUDED.filters_json,
-          court_code = EXCLUDED.court_code,
-          status_filter = EXCLUDED.status_filter,
-          case_type = EXCLUDED.case_type,
-          case_number = EXCLUDED.case_number,
-          year = EXCLUDED.year,
-          notes = EXCLUDED.notes,
-          created_at = EXCLUDED.created_at,
-          updated_at = EXCLUDED.updated_at,
-          last_run_at = EXCLUDED.last_run_at
-        `,
-        [
-          Number(row.id),
-          row.label ? String(row.label) : "",
-          row.search_type ? String(row.search_type) : "",
-          row.query_text ? String(row.query_text) : null,
-          row.filters_json ?? null,
-          row.court_code ? String(row.court_code) : null,
-          row.status_filter ? String(row.status_filter) : null,
-          row.case_type ? String(row.case_type) : null,
-          row.case_number ? String(row.case_number) : null,
-          row.year ? String(row.year) : null,
-          row.notes ? String(row.notes) : null,
-          row.created_at ? String(row.created_at) : new Date().toISOString(),
-          row.updated_at ? String(row.updated_at) : new Date().toISOString(),
-          row.last_run_at ? String(row.last_run_at) : null,
-        ],
-      );
-    }
-
-    for (const row of body.payload.searchRuns) {
-      await pool.query(
-        `
-        INSERT INTO search_runs
-          (id, saved_search_id, source_type, result_json, created_at)
-        VALUES
-          ($1, $2, $3, $4, $5)
-        ON CONFLICT (id)
-        DO UPDATE SET
-          saved_search_id = EXCLUDED.saved_search_id,
-          source_type = EXCLUDED.source_type,
-          result_json = EXCLUDED.result_json,
-          created_at = EXCLUDED.created_at
-        `,
-        [
-          Number(row.id),
-          Number(row.saved_search_id),
-          row.source_type ? String(row.source_type) : "",
-          row.result_json ?? {},
-          row.created_at ? String(row.created_at) : new Date().toISOString(),
-        ],
-      );
-    }
-
-    for (const row of body.payload.causeListSnapshots) {
-      await pool.query(
-        `
-        INSERT INTO cause_list_snapshots
-          (id, source_date, side, list_type, source_url, title, subtitle, content_json, fetched_at)
-        VALUES
-          ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ON CONFLICT (source_date, side, list_type)
-        DO UPDATE SET
-          source_url = EXCLUDED.source_url,
-          title = EXCLUDED.title,
-          subtitle = EXCLUDED.subtitle,
-          content_json = EXCLUDED.content_json,
-          fetched_at = EXCLUDED.fetched_at
-        `,
-        [
-          Number(row.id),
-          row.source_date ? String(row.source_date) : "",
-          row.side ? String(row.side) : "",
-          row.list_type ? String(row.list_type) : "",
-          row.source_url ? String(row.source_url) : "",
-          row.title ? String(row.title) : null,
-          row.subtitle ? String(row.subtitle) : null,
-          row.content_json ?? {},
-          row.fetched_at ? String(row.fetched_at) : new Date().toISOString(),
-        ],
-      );
-    }
-
-    for (const row of body.payload.syncState) {
-      await pool.query(
-        `
-        INSERT INTO sync_state (sync_key, last_run_at, last_status, last_message)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (sync_key)
-        DO UPDATE SET
-          last_run_at = EXCLUDED.last_run_at,
-          last_status = EXCLUDED.last_status,
-          last_message = EXCLUDED.last_message
-        `,
-        [
-          row.sync_key ? String(row.sync_key) : "",
-          row.last_run_at ? String(row.last_run_at) : null,
-          row.last_status ? String(row.last_status) : null,
-          row.last_message ? String(row.last_message) : null,
-        ],
-      );
-    }
-
-    await pool.query(`SELECT setval(pg_get_serial_sequence('saved_searches', 'id'), GREATEST(COALESCE((SELECT MAX(id) FROM saved_searches), 1), 1), true)`);
-    await pool.query(`SELECT setval(pg_get_serial_sequence('search_runs', 'id'), GREATEST(COALESCE((SELECT MAX(id) FROM search_runs), 1), 1), true)`);
-    await pool.query(`SELECT setval(pg_get_serial_sequence('cause_list_snapshots', 'id'), GREATEST(COALESCE((SELECT MAX(id) FROM cause_list_snapshots), 1), 1), true)`);
-
-    res.json({
-      ok: true,
-      imported: {
-        savedSearches: body.payload.savedSearches.length,
-        searchRuns: body.payload.searchRuns.length,
-        causeListSnapshots: body.payload.causeListSnapshots.length,
-        syncState: body.payload.syncState.length,
-      },
-    });
   } catch (error) {
     next(error);
   }
